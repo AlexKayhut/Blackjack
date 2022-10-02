@@ -19,7 +19,7 @@
 // MARK: - Game Protocol
 
 @protocol Game
-@property (nonatomic, strong) NSMutableArray * _Nullable players;
+@property (nonatomic, strong, readonly) NSMutableArray * _Nullable players;
 -(void)startGame:(NSInteger) numberOfPlayers;
 -(void)gameOver;
 @end
@@ -29,13 +29,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface BlackjackGame : NSObject<Game>
 @property (nonatomic, strong, readonly) Player *currentPlayer;
-@property (nonatomic, strong) NSMutableArray *players;
-@property (nonatomic, strong) Contestant *dealer;
+@property (nonatomic, strong, readonly) NSMutableArray *players;
+@property (nonatomic, strong, readonly) Contestant *dealer;
 @property (nonatomic) id<BlackjackGameDelegate> delegate;
 
 - (instancetype)initWith:(Deck *)deck;
 - (void)setBet:(NSInteger)amount;
 - (void)setDecision:(enum Decision)decision;
+
++ (NSInteger)cardsAmountToWin;
++ (NSInteger)dealerMinimumCardEvaluation;
+
 @end
 
 NS_ASSUME_NONNULL_END

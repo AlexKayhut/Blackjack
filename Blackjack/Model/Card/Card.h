@@ -9,7 +9,7 @@
 
 @interface Card : NSObject
 
-@property (strong, nonatomic) NSString *contents; 
+@property (strong, nonatomic, readonly) NSString *contents;
 @property (nonatomic) BOOL isFaceUp;
 
 @end

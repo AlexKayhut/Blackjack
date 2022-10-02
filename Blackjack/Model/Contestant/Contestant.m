@@ -7,18 +7,15 @@
 
 #import "Contestant.h"
 
-@interface Contestant()
-
-@end
-
 @implementation Contestant
 
-- (instancetype)initWith:(NSString *)name cards:(NSMutableArray *)cards chips:(NSInteger)chips {
+- (instancetype)initWith:(NSString *)name cards:(NSMutableArray *)cards chips:(NSInteger)chips isPlaying:(BOOL)isPlaying {
     self = [super init];
     if (self) {
         self.name = name;
         self.cards = cards;
         self.chips = chips;
+        self.isPlaying = isPlaying;
     }
     return self;
 }
@@ -26,5 +23,10 @@
 -(NSMutableArray *) cards {
     if (!_cards) _cards = [[NSMutableArray alloc] init];
     return _cards;
+}
+
+- (NSInteger)cardsEvaluation {
+    if (!_cardsEvaluation) _cardsEvaluation = 0;
+    return _cardsEvaluation;
 }
 @end

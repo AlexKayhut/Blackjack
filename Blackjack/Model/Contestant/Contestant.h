@@ -13,8 +13,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString *name;
 @property (nonatomic) NSMutableArray *cards;
 @property (nonatomic) NSInteger chips;
+@property (nonatomic) NSInteger cardsEvaluation;
+@property (nonatomic) BOOL isPlaying;
 
-- (instancetype)initWith:(NSString *)name cards:(NSMutableArray *)cards chips:(NSInteger)chips;
+- (instancetype)initWith:(NSString *)name cards:(NSMutableArray *)cards chips:(NSInteger)chips isPlaying: (BOOL)isPlaying;
 
 @end
 

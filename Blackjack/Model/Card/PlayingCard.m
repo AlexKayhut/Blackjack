@@ -13,6 +13,15 @@
 
 @synthesize suit = _suit; // because we provide setter AND getter
 
+- (instancetype)initWith:(NSString *)suit rank:(NSInteger)rank {
+    self = [super init];
+    if (self) {
+        self.rank = rank;
+        self.suit = suit;
+    }
+    return self;
+}
+
 // MARK: Static
 
 + (NSArray *)validSuits {
@@ -30,7 +39,11 @@
 // MARK: Method
 
 - (NSString *)contents {
-    return [[PlayingCard rankStrings][self.rank] stringByAppendingString:self.suit];
+    return [[self cardValue] stringByAppendingString:self.suit];
+}
+
+- (NSString *)cardValue {
+    return [PlayingCard rankStrings][self.rank];
 }
 
 // MARK: Getter/Setter
