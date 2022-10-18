@@ -10,6 +10,7 @@
 #import "PlayerCellTableViewCell.h"
 
 @interface BlackjackViewController ()
+
 @property (weak, nonatomic) IBOutlet UISegmentedControl *betSegmentedControl;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *decisionSegmentedControl;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -18,23 +19,25 @@
 @property (weak, nonatomic) IBOutlet UIStackView *playingOptionsStackView;
 @property (weak, nonatomic) IBOutlet UILabel *playingOptionsMainLabel;
 @property (nonatomic) BlackjackGame *game;
+
 @end
 
 @implementation BlackjackViewController
 
 - (BlackjackGame *)game {
-    if (!_game) _game = [[BlackjackGame alloc] initWith: [[PlayingCardDeck alloc] init] ];
+    if (!_game)
+        _game = [[BlackjackGame alloc] initWithDeck: [PlayingCardDeck new]];
     return _game;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.game.delegate = self;
-    _tableView.delegate = self;
-    _tableView.dataSource = self;
-    _decisionSegmentedControl.hidden = YES;
+    self.tableView.delegate = self;
+    self.tableView.dataSource = self;
+    self.decisionSegmentedControl.hidden = YES;
     
-    [self.game startGame:_numberOfPlayers];
+    [self.game startGame: self.numberOfPlayers];
 }
 
 -(void)addCardViewsTo:(UIStackView *)stackView fromPlayer:(Contestant *)player {
@@ -43,7 +46,7 @@
     }
     
     for (Card *card in player.cards) {
-        UILabel *label = [[UILabel alloc] init];
+        UILabel *label = [UILabel new];
         label.textAlignment = NSTextAlignmentRight;
         label.text = card.isFaceUp ? card.contents : @" -- ";
         [stackView addArrangedSubview:label];
@@ -53,37 +56,37 @@
 // MARK: - BlackjackGameDelegate
 
 - (void)updateUI {
-    [self addCardViewsTo:_dealerCardsStackView fromPlayer: self.game.dealer];
-    _dealerChipsLabel.text = [NSString stringWithFormat:@"%ld 💰", (long)self.game.dealer.chips];
-    _playingOptionsMainLabel.text = [NSString stringWithFormat:@"%@ turn:", self.game.currentPlayer.name];
-    _betSegmentedControl.selectedSegmentIndex = 0;
-    [_tableView reloadData];
+    [self addCardViewsTo: self.dealerCardsStackView fromPlayer: self.game.dealer];
+    self.dealerChipsLabel.text = [NSString stringWithFormat:@"%ld 💰", (long)self.game.dealer.chips];
+    self.playingOptionsMainLabel.text = [NSString stringWithFormat:@"%@ turn:", self.game.currentPlayer.name];
+    self.betSegmentedControl.selectedSegmentIndex = 0;
+    [self.tableView reloadData];
 }
 
 - (void)betsOver {
-    _betSegmentedControl.hidden = YES;
-    _decisionSegmentedControl.hidden = NO;
+    self.betSegmentedControl.hidden = YES;
+    self.decisionSegmentedControl.hidden = NO;
 }
 
 // MARK: - IBActions
 
 - (IBAction)betSegmentedControlValueChanged:(UISegmentedControl *)sender {
-    NSString *selectedSegmentTitle = [_betSegmentedControl titleForSegmentAtIndex:_betSegmentedControl.selectedSegmentIndex];
+    NSString *selectedSegmentTitle = [self.betSegmentedControl titleForSegmentAtIndex:self.betSegmentedControl.selectedSegmentIndex];
     if ([selectedSegmentTitle isEqualToString: @"-"]) {
         return;
     }
     [self.game setBet:selectedSegmentTitle.integerValue];
-    _betSegmentedControl.selectedSegmentIndex = 0;
+    self.betSegmentedControl.selectedSegmentIndex = 0;
 }
 
 - (IBAction)decisionSegmentedControlValueChanged:(UISegmentedControl *)sender {
-    NSString *selectedSegmentTitle = [_decisionSegmentedControl titleForSegmentAtIndex:_decisionSegmentedControl.selectedSegmentIndex];
+    NSString *selectedSegmentTitle = [self.decisionSegmentedControl titleForSegmentAtIndex:self.decisionSegmentedControl.selectedSegmentIndex];
     if ([selectedSegmentTitle isEqualToString: @"-"]) {
         return;
     }
     
-    [self.game setDecision:(enum Decision) (_decisionSegmentedControl.selectedSegmentIndex-1)];
-    _decisionSegmentedControl.selectedSegmentIndex = 0;
+    [self.game setDecision:(enum Decision) (self.decisionSegmentedControl.selectedSegmentIndex-1)];
+    self.decisionSegmentedControl.selectedSegmentIndex = 0;
 }
 
 // MARK: Table View

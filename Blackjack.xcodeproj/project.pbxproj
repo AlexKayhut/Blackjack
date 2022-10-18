@@ -22,7 +22,7 @@
 		FADC700C28E46B2A009781F4 /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = FADC700B28E46B2A009781F4 /* Player.m */; };
 		FADC700F28E47D4F009781F4 /* BlackjackGame.m in Sources */ = {isa = PBXBuildFile; fileRef = FADC700E28E47D4F009781F4 /* BlackjackGame.m */; };
 		FADC701228E57954009781F4 /* BlackjackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FADC701128E57954009781F4 /* BlackjackViewController.m */; };
-		FADC701828E58E33009781F4 /* NSMutableArray_Shuffling.m in Sources */ = {isa = PBXBuildFile; fileRef = FADC701728E58E33009781F4 /* NSMutableArray_Shuffling.m */; };
+		FADC701828E58E33009781F4 /* NSMutableArray+Shuffling.m in Sources */ = {isa = PBXBuildFile; fileRef = FADC701728E58E33009781F4 /* NSMutableArray+Shuffling.m */; };
 		FADC702328E59B7E009781F4 /* PlayerCellTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FADC702228E59B7E009781F4 /* PlayerCellTableViewCell.m */; };
 /* End PBXBuildFile section */
 
@@ -55,8 +55,8 @@
 		FADC700E28E47D4F009781F4 /* BlackjackGame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BlackjackGame.m; sourceTree = "<group>"; };
 		FADC701028E57954009781F4 /* BlackjackViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlackjackViewController.h; sourceTree = "<group>"; };
 		FADC701128E57954009781F4 /* BlackjackViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BlackjackViewController.m; sourceTree = "<group>"; };
-		FADC701628E58E33009781F4 /* NSMutableArray_Shuffling.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSMutableArray_Shuffling.h; sourceTree = "<group>"; };
-		FADC701728E58E33009781F4 /* NSMutableArray_Shuffling.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSMutableArray_Shuffling.m; sourceTree = "<group>"; };
+		FADC701628E58E33009781F4 /* NSMutableArray+Shuffling.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Shuffling.h"; sourceTree = "<group>"; };
+		FADC701728E58E33009781F4 /* NSMutableArray+Shuffling.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Shuffling.m"; sourceTree = "<group>"; };
 		FADC702128E59B7E009781F4 /* PlayerCellTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlayerCellTableViewCell.h; sourceTree = "<group>"; };
 		FADC702228E59B7E009781F4 /* PlayerCellTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlayerCellTableViewCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -91,6 +91,7 @@
 		FADC6FD828E427BD009781F4 /* Blackjack */ = {
 			isa = PBXGroup;
 			children = (
+				FAF60A7128FEA61400CD2E63 /* View Controllers */,
 				FADC701928E596CD009781F4 /* PlayerView */,
 				FADC700528E468DE009781F4 /* Other */,
 				FADC700428E468D5009781F4 /* Game */,
@@ -139,11 +140,8 @@
 		FADC700428E468D5009781F4 /* Game */ = {
 			isa = PBXGroup;
 			children = (
-				FADC702428E5A2FB009781F4 /* Player Selection View Controller */,
 				FADC700D28E47D4F009781F4 /* BlackjackGame.h */,
 				FADC700E28E47D4F009781F4 /* BlackjackGame.m */,
-				FADC701028E57954009781F4 /* BlackjackViewController.h */,
-				FADC701128E57954009781F4 /* BlackjackViewController.m */,
 			);
 			path = Game;
 			sourceTree = "<group>";
@@ -155,8 +153,8 @@
 				FADC6FDA28E427BD009781F4 /* AppDelegate.m */,
 				FADC6FDC28E427BD009781F4 /* SceneDelegate.h */,
 				FADC6FDD28E427BD009781F4 /* SceneDelegate.m */,
-				FADC701628E58E33009781F4 /* NSMutableArray_Shuffling.h */,
-				FADC701728E58E33009781F4 /* NSMutableArray_Shuffling.m */,
+				FADC701628E58E33009781F4 /* NSMutableArray+Shuffling.h */,
+				FADC701728E58E33009781F4 /* NSMutableArray+Shuffling.m */,
 			);
 			path = Other;
 			sourceTree = "<group>";
@@ -181,13 +179,31 @@
 			path = PlayerView;
 			sourceTree = "<group>";
 		};
-		FADC702428E5A2FB009781F4 /* Player Selection View Controller */ = {
+		FADC702428E5A2FB009781F4 /* Player Selection */ = {
 			isa = PBXGroup;
 			children = (
 				FADC6FDF28E427BD009781F4 /* PlayerSelectionViewController.h */,
 				FADC6FE028E427BD009781F4 /* PlayerSelectionViewController.m */,
 			);
-			path = "Player Selection View Controller";
+			path = "Player Selection";
+			sourceTree = "<group>";
+		};
+		FAF60A7128FEA61400CD2E63 /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				FAF60A7228FEA61E00CD2E63 /* Blackjack */,
+				FADC702428E5A2FB009781F4 /* Player Selection */,
+			);
+			path = "View Controllers";
+			sourceTree = "<group>";
+		};
+		FAF60A7228FEA61E00CD2E63 /* Blackjack */ = {
+			isa = PBXGroup;
+			children = (
+				FADC701028E57954009781F4 /* BlackjackViewController.h */,
+				FADC701128E57954009781F4 /* BlackjackViewController.m */,
+			);
+			path = Blackjack;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -267,7 +283,7 @@
 				FADC6FFB28E4412D009781F4 /* PlayingCard.m in Sources */,
 				FADC700C28E46B2A009781F4 /* Player.m in Sources */,
 				FADC700F28E47D4F009781F4 /* BlackjackGame.m in Sources */,
-				FADC701828E58E33009781F4 /* NSMutableArray_Shuffling.m in Sources */,
+				FADC701828E58E33009781F4 /* NSMutableArray+Shuffling.m in Sources */,
 				FADC700928E46B1C009781F4 /* Contestant.m in Sources */,
 				FADC6FDB28E427BD009781F4 /* AppDelegate.m in Sources */,
 				FADC6FEC28E427BD009781F4 /* main.m in Sources */,

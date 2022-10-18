@@ -21,7 +21,7 @@
 }
 
 -(NSMutableArray *) cards {
-    if (!_cards) _cards = [[NSMutableArray alloc] init];
+    if (!_cards) _cards = [NSMutableArray new];
     return _cards;
 }
 
@@ -29,4 +29,5 @@
     if (!_cardsEvaluation) _cardsEvaluation = 0;
     return _cardsEvaluation;
 }
+
 @end

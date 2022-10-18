@@ -8,11 +8,6 @@
 @import Foundation;
 #import "Card.h"
 
-@interface Card()
-
-@end
-
 @implementation Card : NSObject
-
 
 @end

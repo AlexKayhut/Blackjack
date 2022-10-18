@@ -8,14 +8,20 @@
 #import "BlackjackGame.h"
 #import "PlayingCard.h"
 
+typedef NS_ENUM(NSInteger, State) {
+    COLLECT_BETS, DEAL_CARDS, AWAITING_PLAYERS_DECISION, AWAITING_DEALER
+};
+
 // MARK: - Private Properties
 
-@interface BlackjackGame()
+@interface BlackjackGame ()
+
 @property (nonatomic, strong) Deck *deck;
 @property (nonatomic) NSInteger cardsAmountToWin;
 @property (nonatomic) NSInteger dealerMinimumCardEvaluation;
-@property (nonatomic) enum State gameState;
+@property (nonatomic, assign) State gameState;
 @property (nonatomic) NSArray *gameStates;
+
 @end
 
 // MARK: - Implementation
@@ -24,12 +30,9 @@
 
 @synthesize dealer = _dealer; // because we provide setter AND getter
 
-enum State {
-    collectBets, dealCards, awaitingPlayersDecision, awaitingDealerDecision
-};
-
 - (Contestant *) dealer {
-    if (!_dealer) _dealer = [[Contestant alloc] initWith:@"Dealer" cards:[[NSMutableArray alloc] init] chips: 0 isPlaying:YES];
+    if (!_dealer)
+        _dealer = [[Contestant alloc] initWith:@"Dealer" cards:[NSMutableArray new] chips: 0 isPlaying:YES];
     return _dealer;
 }
 
@@ -48,8 +51,8 @@ enum State {
 }
 
 - (NSArray *)currentActivePlayers {
-    NSMutableArray *activePlayers = [[NSMutableArray alloc] init];
-    for (Player *player in _players) {
+    NSMutableArray *activePlayers = [NSMutableArray new];
+    for (Player *player in self.players) {
         if (player.isPlaying) {
             [activePlayers addObject:player];
         }
@@ -59,7 +62,7 @@ enum State {
 
 // MARK: - Init
 
-- (instancetype)initWith:(Deck *)deck {
+- (instancetype)initWithDeck:(Deck *)deck {
     self = [super init];
     if (self) {
         _deck = deck;
@@ -67,65 +70,53 @@ enum State {
     return self;
 }
 
-// MARK: - Game Methods
-
-- (void)startGame:(NSInteger)numberOfPlayers {
-    [self setupContestants:numberOfPlayers];
-    _gameState = collectBets;
-    [_delegate updateUI];
-}
-
-- (void)gameOver {
-//    [_dealer.cards removeAllObjects];
-}
-
-
 // MARK: - Game Logic
 
 -(void)setupContestants:(NSInteger) numberOfPlayers {
-    [_players removeAllObjects];
-    _players = [NSMutableArray arrayWithCapacity:numberOfPlayers];
+    NSMutableArray *newPlayers = [NSMutableArray arrayWithCapacity:numberOfPlayers];
     
     for (int i=0; i<numberOfPlayers; i++) {
         NSString *name = [NSString stringWithFormat:@"Player #%d", i+1];
-        Player *player = [[Player alloc] initWith:name cards:[[NSMutableArray alloc] init] chips: 50 isPlaying:YES];
-        [_players addObject: player];
+        Player *player = [[Player alloc] initWith:name cards:[NSMutableArray new] chips: 50 isPlaying:YES];
+        [newPlayers addObject: player];
     }
-    _currentPlayer = _players.firstObject;
+    self.players = newPlayers;
+    self.currentPlayer = self.players.firstObject;
 }
 
-- (void)setDecision:(enum Decision)decision {
+- (void)setDecision:(Decision)decision {
     switch (decision) {
-        case hit:
-            [_currentPlayer.cards addObject:[_deck drawRandomCard:YES]];
+        case HIT: {
+            [self.currentPlayer.cards addObject:[self.deck drawRandomCard:YES]];
             NSInteger cardsEvaluation = [self evaluateCardsFor:_currentPlayer];
-            [self handlePlayersLogicBasedOn: cardsEvaluation forPlayer: _currentPlayer];
+            [self handlePlayersLogicBasedOn: cardsEvaluation forPlayer: self.currentPlayer];
             
-            if (!_currentPlayer.isPlaying) {
+            if (!self.currentPlayer.isPlaying) {
                 [self nextPlayer];
             }
             break;
-            
-        case stand:
+        }
+        case STAND:
             [self nextPlayer];
             break;
             
-        case surrender:
-            self.dealer.chips += _currentPlayer.betAmount;
-            _currentPlayer.betAmount = 0;
-            _currentPlayer.isPlaying = NO;
+        case SURRENDER: {
+            self.dealer.chips += self.currentPlayer.betAmount;
+            self.currentPlayer.betAmount = 0;
+            self.currentPlayer.isPlaying = NO;
             [self nextPlayer];
             break;
+        }
     }
-    [_delegate updateUI];
+    [self.delegate updateUI];
 }
 
 - (void)setBet:(NSInteger)amount {
-    if (_currentPlayer.chips >= amount) {
-        _currentPlayer.betAmount += amount;
-        _currentPlayer.chips -= amount;
+    if (self.currentPlayer.chips >= amount) {
+        self.currentPlayer.betAmount += amount;
+        self.currentPlayer.chips -= amount;
         [self nextPlayer];
-        [_delegate updateUI];
+        [self.delegate updateUI];
     }
 }
 
@@ -136,11 +127,11 @@ enum State {
         [self gameOver];
         return;
     }
-    NSInteger index = [_players indexOfObject:_currentPlayer];
+    NSInteger index = [self.players indexOfObject: self.currentPlayer];
 
-    if (index < _players.count - 1) {
-        _currentPlayer = _players[index + 1];
-    } else if (index == _players.count - 1) {
+    if (index < self.players.count - 1) {
+        self.currentPlayer = self.players[index + 1];
+    } else if (index == self.players.count - 1) {
         
         [self progressGameState];
     } else {
@@ -150,31 +141,32 @@ enum State {
 
 // TODO : encapuslate some logic
 -(void)progressGameState {
-    switch (_gameState) {
-        case collectBets:
-            _gameState = dealCards;
+    switch (self.gameState) {
+        case COLLECT_BETS:
+            self.gameState = DEAL_CARDS;
         
-        case dealCards:
+        case DEAL_CARDS: {
             [self.delegate betsOver];
             [self dealCardsWithDealerFaceUp:YES];
             [self dealCardsWithDealerFaceUp:NO];
             [self evaluateCards];
-            [_delegate updateUI];
-            _currentPlayer = _players.firstObject;
-            _gameState = awaitingPlayersDecision;
+            [self.delegate updateUI];
+            self.currentPlayer = self.players.firstObject;
+            self.gameState = AWAITING_PLAYERS_DECISION;
             break;
+        }
             
-        case awaitingPlayersDecision:
-            _gameState = awaitingDealerDecision;
+        case AWAITING_PLAYERS_DECISION:
+            self.gameState = AWAITING_DEALER;
             
-        case awaitingDealerDecision:
+        case AWAITING_DEALER: {
             [self.dealer.cards.lastObject setIsFaceUp:YES];
             NSInteger dealerCardsEvaluation = [self evaluateCardsFor:self.dealer];
             while (dealerCardsEvaluation <= [BlackjackGame dealerMinimumCardEvaluation]) {
-                [self.dealer.cards addObject:[_deck drawRandomCard:YES]];
+                [self.dealer.cards addObject:[self.deck drawRandomCard:YES]];
                 dealerCardsEvaluation = [self evaluateCardsFor:self.dealer];
             }
-            [_delegate updateUI];
+            [self.delegate updateUI];
             
             for (Player *activePlayer in [self currentActivePlayers]) {
                 if (activePlayer.cardsEvaluation > self.dealer.cardsEvaluation || self.dealer.cardsEvaluation > [BlackjackGame cardsAmountToWin]) {
@@ -186,17 +178,18 @@ enum State {
                 activePlayer.betAmount = 0;
                 
             }
-
+            
             [self gameOver];
             break;
+        }
     }
 }
 
 -(void)dealCardsWithDealerFaceUp:(BOOL)isDealerCardFaceUp {
-    for (Player *player in _players) {
-        [player.cards addObject: [_deck drawRandomCard:YES]];
+    for (Player *player in self.players) {
+        [player.cards addObject: [self.deck drawRandomCard:YES]];
     }
-    [self.dealer.cards addObject:[_deck drawRandomCard:isDealerCardFaceUp]];
+    [self.dealer.cards addObject:[self.deck drawRandomCard:isDealerCardFaceUp]];
 }
 
 -(void)handlePlayersLogicBasedOn: (NSInteger)cardsEvaluation forPlayer:(Player *)player {
@@ -213,7 +206,7 @@ enum State {
 }
 
 -(void)evaluateCards {
-    for (Player *player in _players) {
+    for (Player *player in self.players) {
         NSInteger cardsEvaluation = [self evaluateCardsFor:player];
         [self handlePlayersLogicBasedOn:cardsEvaluation forPlayer:player];
     }
@@ -242,5 +235,20 @@ enum State {
     return sum;
 }
 
+@end
+
+@implementation BlackjackGame (Game)
+
+// MARK: - Game Methods
+
+- (void)startGame:(NSInteger)numberOfPlayers {
+    [self setupContestants:numberOfPlayers];
+    self.gameState = COLLECT_BETS;
+    [self.delegate updateUI];
+}
+
+- (void)gameOver {
+//    [_dealer.cards removeAllObjects];
+}
 
 @end

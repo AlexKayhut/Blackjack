@@ -7,11 +7,11 @@
 
 #import <Foundation/Foundation.h>
 #import "Card.h"
-#import "NSMutableArray_Shuffling.h"
+#import "NSMutableArray+Shuffling.h"
 
 @interface Deck : NSObject
 
-@property (strong, nonatomic, readonly) NSMutableArray *cards;
+@property (nonatomic, copy, readonly) NSMutableArray *cards;
 
 - (void)addCard:(Card *)card;
 - (void)shuffle;

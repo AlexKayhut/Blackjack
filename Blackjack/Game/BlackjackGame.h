@@ -12,33 +12,44 @@
 // MARK: - BlackjackGame Delegate
 
 @protocol BlackjackGameDelegate
+
 -(void)updateUI;
 -(void)betsOver;
+
 @end
 
 // MARK: - Game Protocol
 
 @protocol Game
-@property (nonatomic, strong, readonly) NSMutableArray * _Nullable players;
+
+@property (nonatomic, copy, readonly) NSArray * _Nullable players;
 -(void)startGame:(NSInteger) numberOfPlayers;
 -(void)gameOver;
-@end
 
+@end
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface BlackjackGame : NSObject<Game>
-@property (nonatomic, strong, readonly) Player *currentPlayer;
-@property (nonatomic, strong, readonly) NSMutableArray *players;
+@interface BlackjackGame : NSObject
+
+@property (nonatomic, strong) Player *currentPlayer;
+@property (nonatomic, copy) NSArray *players;
 @property (nonatomic, strong, readonly) Contestant *dealer;
 @property (nonatomic) id<BlackjackGameDelegate> delegate;
 
-- (instancetype)initWith:(Deck *)deck;
+- (instancetype)initWithDeck:(Deck *)deck;
 - (void)setBet:(NSInteger)amount;
 - (void)setDecision:(enum Decision)decision;
 
 + (NSInteger)cardsAmountToWin;
 + (NSInteger)dealerMinimumCardEvaluation;
+
+@end
+
+@interface BlackjackGame (Game) <Game>
+
+-(void)startGame:(NSInteger) numberOfPlayers;
+-(void)gameOver;
 
 @end
 

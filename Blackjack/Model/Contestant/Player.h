@@ -7,16 +7,15 @@
 
 #import "Contestant.h"
 
-enum Decision {
-    hit, stand, surrender
+typedef NS_ENUM (NSInteger, Decision) {
+    HIT, STAND, SURRENDER
 };
-
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface Player : Contestant
 @property (nonatomic) NSInteger betAmount;
-@property (nonatomic) enum Decision decision;
+@property (nonatomic, assign) Decision decision;
 
 @end
 

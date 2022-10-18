@@ -15,7 +15,6 @@
     self.name.text = @"";
     self.chips.text = @"";
     self.currentBet.text = @"";
-    
 }
 
 @end

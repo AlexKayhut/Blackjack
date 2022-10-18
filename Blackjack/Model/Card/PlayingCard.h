@@ -9,7 +9,7 @@
 
 @interface PlayingCard : Card
 
-@property (strong, nonatomic, readonly) NSString *suit;
+@property (nonatomic, copy, readonly) NSString *suit;
 @property (nonatomic, readonly) NSInteger rank;
 
 + (NSArray *)rankStrings;

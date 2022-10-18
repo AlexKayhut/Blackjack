@@ -8,21 +8,24 @@
 #import <Foundation/Foundation.h>
 #import "Deck.h"
 
-@interface Deck()
-@property (strong, nonatomic) NSMutableArray *cards;
+@interface Deck ()
+
+@property (nonatomic, copy) NSMutableArray *cards;
+
 @end
 
 @implementation Deck
 
 - (NSMutableArray *)cards {
-    if (!_cards) _cards = [[NSMutableArray alloc] init];
+    if (!_cards)
+        _cards = [NSMutableArray new];
     return _cards;  
 }
 
 - (Card *)drawRandomCard:(BOOL) isFaceUp {
-    Card *randomCard = _cards.firstObject;
+    Card *randomCard = self.cards.firstObject;
     randomCard.isFaceUp = isFaceUp;
-    [_cards removeObjectAtIndex:0];
+    [self.cards removeObjectAtIndex:0];
     return randomCard;
 }
 
