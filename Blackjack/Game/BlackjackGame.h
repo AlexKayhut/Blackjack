@@ -10,11 +10,11 @@
 #import "Player.h"
 
 typedef NS_ENUM(NSInteger, State) {
-  COLLECT_BETS,
-  DEAL_CARDS,
-  AWAITING_PLAYERS_DECISION,
-  AWAITING_DEALER,
-  GAMEOVER
+    COLLECT_BETS,
+    DEAL_CARDS,
+    AWAITING_PLAYERS_DECISION,
+    AWAITING_DEALER,
+    GAMEOVER
 };
 
 // MARK: - BlackjackGame Delegate

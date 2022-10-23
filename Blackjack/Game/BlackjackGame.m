@@ -37,8 +37,7 @@
 }
 
 - (NSArray<Player *> *)currentActivePlayers {
-    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(Player *object,
-                                                                   NSDictionary *bindings) {
+    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(Player *object, NSDictionary *bindings) {
         return object.isPlaying;  // Return YES for each object you want in filteredArray.
     }];
     return [self.players filteredArrayUsingPredicate:predicate];
@@ -46,7 +45,8 @@
 
 // MARK: - Init
 
-- (instancetype)initWithDeck:(Deck *)deck numberOfPlayers:(NSInteger)numberOfPlayers delegate:(id<BlackjackGameDelegate>)delegate {
+- (instancetype)initWithDeck:(Deck *)deck numberOfPlayers:(NSInteger)numberOfPlayers
+                    delegate:(id<BlackjackGameDelegate>)delegate {
     self = [super init];
     if (self) {
         NSMutableArray *newPlayers = [NSMutableArray arrayWithCapacity:numberOfPlayers];

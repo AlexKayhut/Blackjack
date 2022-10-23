@@ -10,13 +10,13 @@
 @implementation PlayerCellTableViewCell
 
 - (void)prepareForReuse {
-  [super prepareForReuse];
-  super.backgroundColor = UIColor.whiteColor;
-  self.name.text = @"";
-  self.chips.text = @"";
-  self.currentBet.text = @"";
+    [super prepareForReuse];
+    super.backgroundColor = UIColor.whiteColor;
+    self.name.text = @"";
+    self.chips.text = @"";
+    self.currentBet.text = @"";
     self.cardEvaluationLabel.text = @"";
-  self.backgroundColor = UIColor.clearColor;
+    self.backgroundColor = UIColor.clearColor;
 }
 
 - (void)updateTextColorTo:(UIColor *)color {
@@ -27,7 +27,7 @@
 }
 
 + (NSString *)identifier {
-  return @"PlayerCellTableViewCell";
+    return @"PlayerCellTableViewCell";
 }
 
 @end
