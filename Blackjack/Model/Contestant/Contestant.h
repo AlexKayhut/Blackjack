@@ -7,8 +7,6 @@
 
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface Contestant : NSObject
 
 @property (nonatomic, copy) NSString *name;
@@ -17,8 +15,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSInteger cardsEvaluation;
 @property (nonatomic) BOOL isPlaying;
 
-- (instancetype)initWith:(NSString *)name cards:(NSMutableArray *)cards chips:(NSInteger)chips isPlaying: (BOOL)isPlaying;
+- (instancetype)initWithName:(NSString *)name
+                       cards:(NSMutableArray *)cards
+                       chips:(NSInteger)chips
+                   isPlaying: (BOOL)isPlaying;
+
+- (instancetype)initWithName:(NSString *)name chips:(NSInteger)chips;
 
 @end
-
-NS_ASSUME_NONNULL_END

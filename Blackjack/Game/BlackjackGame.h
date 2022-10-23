@@ -9,11 +9,18 @@
 #import "Deck.h"
 #import "Player.h"
 
+typedef NS_ENUM(NSInteger, State) {
+  COLLECT_BETS,
+  DEAL_CARDS,
+  AWAITING_PLAYERS_DECISION,
+  AWAITING_DEALER
+};
+
 // MARK: - BlackjackGame Delegate
 
 @protocol BlackjackGameDelegate
 
--(void)updateUI;
+-(void)updateUIForState:(State) state;
 -(void)betsOver;
 
 @end
@@ -22,35 +29,33 @@
 
 @protocol Game
 
-@property (nonatomic, copy, readonly) NSArray * _Nullable players;
--(void)startGame:(NSInteger) numberOfPlayers;
+@property (nonatomic, copy, readonly) NSArray<Player *> * _Nullable players;
+-(void)startGame;
 -(void)gameOver;
 
 @end
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface BlackjackGame : NSObject
 
-@property (nonatomic, strong) Player *currentPlayer;
-@property (nonatomic, copy) NSArray *players;
-@property (nonatomic, strong, readonly) Contestant *dealer;
-@property (nonatomic) id<BlackjackGameDelegate> delegate;
+@property (nonatomic, strong, nullable) Player *currentPlayer;
+@property (nonatomic, copy, nullable) NSArray<Player *> *players;
+@property (nonatomic, strong, readonly, nullable) Contestant *dealer;
+@property (nonatomic, weak, nullable) id<BlackjackGameDelegate> delegate;
 
-- (instancetype)initWithDeck:(Deck *)deck;
+// MARK: class properties
+
+@property (nonatomic, readonly, class) NSInteger cardsAmountToWin;
+@property (nonatomic, readonly, class) NSInteger dealerMinimumCardEvaluation;
+
+- (instancetype _Nonnull )initWithDeck:(Deck *_Nonnull)deck numberOfPlayers:(NSInteger)numberOfPlayers delegate:(id<BlackjackGameDelegate>_Nullable)delegate;
 - (void)setBet:(NSInteger)amount;
 - (void)setDecision:(enum Decision)decision;
-
-+ (NSInteger)cardsAmountToWin;
-+ (NSInteger)dealerMinimumCardEvaluation;
 
 @end
 
 @interface BlackjackGame (Game) <Game>
 
--(void)startGame:(NSInteger) numberOfPlayers;
+-(void)startGame;
 -(void)gameOver;
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -7,8 +7,6 @@
 
 #import <UIKit/UIKit.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface PlayerCellTableViewCell : UITableViewCell
 
 @property (weak, nonatomic) IBOutlet UILabel *name;
@@ -16,6 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak, nonatomic) IBOutlet UILabel *currentBet;
 @property (weak, nonatomic) IBOutlet UIStackView *cardsStackView;
 
-@end
+@property (nonatomic, readonly, class) IBOutlet NSString *identifier;
 
-NS_ASSUME_NONNULL_END
+@end

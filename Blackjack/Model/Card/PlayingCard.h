@@ -12,12 +12,12 @@
 @property (nonatomic, copy, readonly) NSString *suit;
 @property (nonatomic, readonly) NSInteger rank;
 
-+ (NSArray *)rankStrings;
-+ (NSArray *)validSuits;
-+ (NSInteger)maxRank;
+@property (nonatomic, readonly, class) NSArray<NSString *> *rankStrings;
+@property (nonatomic, readonly, class) NSArray<NSString *> *validSuits;
+@property (nonatomic, readonly, class) NSInteger maxRank;
 
 - (NSString *)cardValue;
 
-- (instancetype)initWith:(NSString *)suit rank:(NSInteger)rank;
+- (instancetype)initWithSuit:(NSString *)suit rank:(NSInteger)rank;
 
 @end

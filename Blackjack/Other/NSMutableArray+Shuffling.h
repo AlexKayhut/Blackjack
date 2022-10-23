@@ -7,8 +7,6 @@
 
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 // This category enhances NSMutableArray by providing
 // methods to randomly shuffle the elements.
 @interface NSMutableArray (Shuffling)
@@ -16,5 +14,3 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shuffle;
 
 @end
-
-NS_ASSUME_NONNULL_END

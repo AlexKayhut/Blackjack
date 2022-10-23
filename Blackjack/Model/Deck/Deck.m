@@ -17,32 +17,33 @@
 @implementation Deck
 
 - (NSMutableArray *)cards {
-    if (!_cards)
-        _cards = [NSMutableArray new];
-    return _cards;  
+  if (!_cards) {
+    _cards = [NSMutableArray new];
+  }
+  return _cards;
 }
 
 - (Card *)drawRandomCard:(BOOL) isFaceUp {
-    Card *randomCard = self.cards.firstObject;
-    randomCard.isFaceUp = isFaceUp;
-    [self.cards removeObjectAtIndex:0];
-    return randomCard;
+  Card *randomCard = self.cards.firstObject;
+  randomCard.isFaceUp = isFaceUp;
+  [self.cards removeObjectAtIndex:0];
+  return randomCard;
 }
 
 - (void)addCard:(Card *)card {
-    [self addCard:card atTop:NO];
+  [self addCard:card atTop:NO];
 }
 
 - (void)addCard:(Card *)card atTop:(BOOL)atTop {
-    if (atTop) {
-        [self.cards insertObject:card atIndex:0];
-    } else {
-        [self.cards addObject:card];
-    }
+  if (atTop) {
+    [self.cards insertObject:card atIndex:0];
+  } else {
+    [self.cards addObject:card];
+  }
 }
 
 - (void)shuffle {
-    [self.cards shuffle];
+  [self.cards shuffle];
 }
 
 @end

@@ -10,11 +10,15 @@
 @implementation PlayerCellTableViewCell
 
 - (void)prepareForReuse {
-    [super prepareForReuse];
-    super.backgroundColor = UIColor.whiteColor;
-    self.name.text = @"";
-    self.chips.text = @"";
-    self.currentBet.text = @"";
+  [super prepareForReuse];
+  super.backgroundColor = UIColor.whiteColor;
+  self.name.text = @"";
+  self.chips.text = @"";
+  self.currentBet.text = @"";
+}
+
++ (NSString *)identifier {
+  return @"PlayerCellTableViewCell";
 }
 
 @end

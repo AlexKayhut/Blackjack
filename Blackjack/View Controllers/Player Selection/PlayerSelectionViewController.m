@@ -19,10 +19,10 @@
 @implementation PlayerSelectionViewController
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    NSInteger index = [self.numOfPlayersSegmentedControl selectedSegmentIndex];
-    NSString *numberOfPlayers = [self.numOfPlayersSegmentedControl titleForSegmentAtIndex:index];
-    BlackjackViewController *viewController = segue.destinationViewController;
-    viewController.numberOfPlayers = numberOfPlayers.integerValue;
+  NSInteger index = [self.numOfPlayersSegmentedControl selectedSegmentIndex];
+  NSString *numberOfPlayers = [self.numOfPlayersSegmentedControl titleForSegmentAtIndex:index];
+  BlackjackViewController *viewController = segue.destinationViewController;
+  viewController.numberOfPlayers = numberOfPlayers.integerValue;
 }
 
 @end
