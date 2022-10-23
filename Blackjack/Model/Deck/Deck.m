@@ -23,7 +23,7 @@
   return _cards;
 }
 
-- (Card *)drawRandomCard:(BOOL) isFaceUp {
+- (Card *)drawRandomCardWithFaceUp:(BOOL) isFaceUp {
   Card *randomCard = self.cards.firstObject;
   randomCard.isFaceUp = isFaceUp;
   [self.cards removeObjectAtIndex:0];

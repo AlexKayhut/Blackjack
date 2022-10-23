@@ -13,7 +13,8 @@ typedef NS_ENUM(NSInteger, State) {
   COLLECT_BETS,
   DEAL_CARDS,
   AWAITING_PLAYERS_DECISION,
-  AWAITING_DEALER
+  AWAITING_DEALER,
+  GAMEOVER
 };
 
 // MARK: - BlackjackGame Delegate
@@ -41,6 +42,7 @@ typedef NS_ENUM(NSInteger, State) {
 @property (nonatomic, copy, nullable) NSArray<Player *> *players;
 @property (nonatomic, strong, readonly, nullable) Contestant *dealer;
 @property (nonatomic, weak, nullable) id<BlackjackGameDelegate> delegate;
+@property (nonatomic, readonly, assign) State gameState;
 
 // MARK: class properties
 
@@ -50,6 +52,7 @@ typedef NS_ENUM(NSInteger, State) {
 - (instancetype _Nonnull )initWithDeck:(Deck *_Nonnull)deck numberOfPlayers:(NSInteger)numberOfPlayers delegate:(id<BlackjackGameDelegate>_Nullable)delegate;
 - (void)setBet:(NSInteger)amount;
 - (void)setDecision:(enum Decision)decision;
+- (NSInteger)evaluateCardsFor: (Contestant *_Nonnull)contestant;
 
 @end
 

@@ -16,6 +16,6 @@
 - (void)addCard:(Card *)card;
 - (void)shuffle;
 
-- (Card *)drawRandomCard:(BOOL) isFaceUp;
+- (Card *)drawRandomCardWithFaceUp:(BOOL) isFaceUp;
 
 @end

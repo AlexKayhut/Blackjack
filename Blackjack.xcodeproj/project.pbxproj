@@ -92,7 +92,7 @@
 			isa = PBXGroup;
 			children = (
 				FAF60A7128FEA61400CD2E63 /* View Controllers */,
-				FADC701928E596CD009781F4 /* PlayerView */,
+				FADC701928E596CD009781F4 /* Cell */,
 				FADC700528E468DE009781F4 /* Other */,
 				FADC700428E468D5009781F4 /* Game */,
 				FADC6FF228E4354B009781F4 /* Model */,
@@ -170,13 +170,13 @@
 			path = Contestant;
 			sourceTree = "<group>";
 		};
-		FADC701928E596CD009781F4 /* PlayerView */ = {
+		FADC701928E596CD009781F4 /* Cell */ = {
 			isa = PBXGroup;
 			children = (
 				FADC702128E59B7E009781F4 /* PlayerCellTableViewCell.h */,
 				FADC702228E59B7E009781F4 /* PlayerCellTableViewCell.m */,
 			);
-			path = PlayerView;
+			path = Cell;
 			sourceTree = "<group>";
 		};
 		FADC702428E5A2FB009781F4 /* Player Selection */ = {

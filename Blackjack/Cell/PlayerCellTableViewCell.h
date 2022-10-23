@@ -13,7 +13,9 @@
 @property (weak, nonatomic) IBOutlet UILabel *chips;
 @property (weak, nonatomic) IBOutlet UILabel *currentBet;
 @property (weak, nonatomic) IBOutlet UIStackView *cardsStackView;
+@property (weak, nonatomic) IBOutlet UILabel *cardEvaluationLabel;
+@property (nonatomic, readonly, class) NSString *identifier;
 
-@property (nonatomic, readonly, class) IBOutlet NSString *identifier;
+- (void)updateTextColorTo:(UIColor *)color;
 
 @end
