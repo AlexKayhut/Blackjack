@@ -6,20 +6,32 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Card.h"
+
+typedef NS_ENUM(NSInteger, ContestantState) {
+    BETTING,
+    PLAYING,
+    GOT_BLACKJACK,
+    LOST
+};
 
 @interface Contestant : NSObject
 
-@property (nonatomic, copy) NSString *name;
-@property (nonatomic) NSMutableArray *cards;
+@property (nonatomic, readonly, copy) NSString *identifier;
+@property (nonatomic, readonly, copy) NSString *name;
+@property (nonatomic, readonly) NSArray<Card *> *cards;
 @property (nonatomic) NSInteger chips;
-@property (nonatomic) NSInteger cardsEvaluation;
-@property (nonatomic) BOOL isPlaying;
+@property (nonatomic, readonly) NSInteger cardsEvaluation;
+@property (nonatomic, assign) ContestantState state;
 
 - (instancetype)initWithName:(NSString *)name
                        cards:(NSMutableArray *)cards
                        chips:(NSInteger)chips
-                   isPlaying: (BOOL)isPlaying;
+                       state: (ContestantState)state;
 
 - (instancetype)initWithName:(NSString *)name chips:(NSInteger)chips;
+
+- (void)acceptNewCard: (Card *)card;
+- (void)wonChipsAmount: (NSInteger)winAmount;
 
 @end

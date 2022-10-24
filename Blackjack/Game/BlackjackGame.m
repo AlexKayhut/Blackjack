@@ -6,7 +6,9 @@
 //
 
 #import "BlackjackGame.h"
+#import "PlayingCardDeck.h"
 #import "PlayingCard.h"
+#import "Player.h"
 
 // MARK: - Private Properties
 
@@ -14,6 +16,7 @@
 
 @property (nonatomic, strong) Deck *deck;
 @property (nonatomic, assign) State gameState;
+@property (nonatomic) NSMutableDictionary<NSString*, NSNumber*> *bets;
 
 @end
 
@@ -37,13 +40,22 @@
 }
 
 - (NSArray<Player *> *)currentActivePlayers {
-    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(Player *object, NSDictionary *bindings) {
-        return object.isPlaying;  // Return YES for each object you want in filteredArray.
+    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(Player *player, NSDictionary *bindings) {
+        return player.state == PLAYING;
     }];
     return [self.players filteredArrayUsingPredicate:predicate];
 }
 
+- (void)setGameState:(State)gameState {
+    _gameState = gameState;
+    [self.delegate updateUIForState:self.gameState];
+}
+
 // MARK: - Init
+
+- (instancetype)initWithNumberOfPlayers:(NSInteger)numberOfPlayers delegate:(id<BlackjackGameDelegate>)delegate {
+    return [self initWithDeck:[PlayingCardDeck new] numberOfPlayers:numberOfPlayers delegate:delegate];
+}
 
 - (instancetype)initWithDeck:(Deck *)deck numberOfPlayers:(NSInteger)numberOfPlayers
                     delegate:(id<BlackjackGameDelegate>)delegate {
@@ -53,13 +65,14 @@
         
         for (int i=0; i<numberOfPlayers; i++) {
             NSString *name = [NSString stringWithFormat:@"Player #%d", i+1];
-            Player *player = [[Player alloc] initWithName:name chips: 50];
+            Player *player = [[Player alloc] initWithName:name chips: 50 delegate:self];
             [newPlayers addObject: player];
         }
         _players = newPlayers;
         _currentPlayer = newPlayers.firstObject;
         _deck = deck;
         _delegate = delegate;
+        _bets = [NSMutableDictionary new];
         _dealer = [[Contestant alloc] initWithName:@"Dealer" chips: 0];
     }
     return self;
@@ -70,11 +83,9 @@
 - (void)setDecision:(Decision)decision {
     switch (decision) {
         case HIT: {
-            [self.currentPlayer.cards addObject:[self.deck drawRandomCardWithFaceUp:NO]];
-            NSInteger cardsEvaluation = [self evaluateCardsFor:_currentPlayer];
-            [self handlePlayersLogicBasedOn: cardsEvaluation forPlayer: self.currentPlayer];
+            [self.currentPlayer acceptNewCard:[self.deck drawRandomCardWithFaceUp:NO]];
             
-            if (!self.currentPlayer.isPlaying) {
+            if (self.currentPlayer.state != PLAYING) {
                 [self nextPlayer];
             }
             break;
@@ -84,9 +95,7 @@
             break;
             
         case SURRENDER: {
-            self.dealer.chips += self.currentPlayer.betAmount;
-            self.currentPlayer.betAmount = 0;
-            self.currentPlayer.isPlaying = NO;
+            self.currentPlayer.state = LOST;
             [self nextPlayer];
             break;
         }
@@ -96,11 +105,14 @@
 
 - (void)setBet:(NSInteger)amount {
     if (self.currentPlayer.chips >= amount) {
-        self.currentPlayer.betAmount += amount;
+        [self.bets setObject:[NSNumber numberWithInteger:amount] forKey:self.currentPlayer.identifier];
         self.currentPlayer.chips -= amount;
         [self nextPlayer];
-        [self.delegate updateUIForState:self.gameState];
     }
+}
+
+- (NSInteger)betAmountForPlayer:(Player *)player {
+    return [self.bets valueForKey:player.identifier].integerValue;
 }
 
 -(void)nextPlayer {
@@ -114,9 +126,12 @@
     NSInteger index = [self.players indexOfObject: self.currentPlayer];
     
     if (index < self.players.count - 1) {
-        self.currentPlayer = self.players[index + 1];
-        if (self.currentPlayer.isPlaying == NO) {
+        Player *nextPlayer = self.players[index + 1];
+        
+        if (nextPlayer.state != PLAYING) {
             [self nextPlayer];
+        } else {
+            self.currentPlayer = nextPlayer;
         }
     } else {
         [self progressGameState];
@@ -133,8 +148,8 @@
             [self.delegate betsOver];
             [self dealCardsWithDealerFaceUp:YES];
             [self dealCardsWithDealerFaceUp:NO];
-            [self evaluateCards];
-            if (!self.currentPlayer.isPlaying) {
+
+            if (self.currentPlayer.state != PLAYING) {
                 [self nextPlayer];
             }
             [self.delegate updateUIForState:self.gameState];
@@ -158,11 +173,9 @@
 
 -(void)handleDealerHand {
     [self.dealer.cards.lastObject setIsFaceUp:YES];
-    NSInteger dealerCardsEvaluation = [self evaluateCardsFor:self.dealer];
     
-    while (dealerCardsEvaluation <= BlackjackGame.dealerMinimumCardEvaluation) {
-        [self.dealer.cards addObject:[self.deck drawRandomCardWithFaceUp:YES]];
-        dealerCardsEvaluation = [self evaluateCardsFor:self.dealer];
+    while (self.dealer.cardsEvaluation <= BlackjackGame.dealerMinimumCardEvaluation) {
+        [self.dealer acceptNewCard:[self.deck drawRandomCardWithFaceUp:YES]];
     }
     [self.delegate updateUIForState:self.gameState];
     
@@ -170,64 +183,21 @@
         BOOL playerCardsBitDealer = activePlayer.cardsEvaluation > self.dealer.cardsEvaluation;
         BOOL dealerLost = self.dealer.cardsEvaluation > BlackjackGame.cardsAmountToWin;
         
+        NSInteger originalBetAmount = [self.bets valueForKey:activePlayer.identifier].integerValue;
+        
         if (dealerLost || playerCardsBitDealer) {
-            activePlayer.chips += activePlayer.betAmount * 2;
+            [activePlayer wonChipsAmount:originalBetAmount * 2];
         } else {
-            self.dealer.chips += activePlayer.betAmount;
-            activePlayer.isPlaying = NO;
+            self.dealer.chips += originalBetAmount;
         }
-        activePlayer.betAmount = 0;
     }
 }
 
 -(void)dealCardsWithDealerFaceUp:(BOOL)isDealerCardFaceUp {
     for (Player *player in self.players) {
-        [player.cards addObject: [self.deck drawRandomCardWithFaceUp:NO]];
+        [player acceptNewCard:[self.deck drawRandomCardWithFaceUp:NO]];
     }
-    [self.dealer.cards addObject:[self.deck drawRandomCardWithFaceUp:isDealerCardFaceUp]];
-}
-
--(void)handlePlayersLogicBasedOn: (NSInteger)cardsEvaluation forPlayer:(Player *)player {
-    if (cardsEvaluation == BlackjackGame.cardsAmountToWin) {
-        player.isPlaying = NO;
-        player.chips = player.betAmount * 1.5;
-        player.betAmount = 0;
-    } else if (cardsEvaluation > BlackjackGame.cardsAmountToWin) {
-        player.isPlaying = NO;
-        player.chips -= player.betAmount;
-        self.dealer.chips += player.betAmount;
-        player.betAmount = 0;
-    }
-}
-
--(void)evaluateCards {
-    for (Player *player in self.players) {
-        NSInteger cardsEvaluation = [self evaluateCardsFor:player];
-        [self handlePlayersLogicBasedOn:cardsEvaluation forPlayer:player];
-    }
-}
-
--(NSInteger)evaluateCardsFor: (Contestant *)contestant {
-    NSInteger sum = 0;
-    NSInteger aceCount = 0;
-    
-    for (PlayingCard *value in contestant.cards) {
-        if ([value.cardValue  isEqual: @"A"]) {
-            aceCount += 1;
-            continue;
-        }
-        sum += BlackjackGame.cardValues[value.cardValue].integerValue;
-    }
-    
-    for (int i=0; i<aceCount;i++) {
-        if ((sum + 11) <= 21) {
-            sum += 11;
-        } else if ((sum + 1) <= 21) {
-            sum += 1;
-        }
-    }
-    contestant.cardsEvaluation = sum;
-    return sum;
+    [self.dealer acceptNewCard:[self.deck drawRandomCardWithFaceUp:isDealerCardFaceUp]];
 }
 
 @end
@@ -244,6 +214,25 @@
 - (void)gameOver {
     self.gameState = GAMEOVER;
     [self.delegate updateUIForState:self.gameState];
+}
+
+@end
+
+@implementation BlackjackGame (PlayerDelegate)
+
+- (void)stateUpdatedFor:(Contestant *)player {
+    NSInteger playerIndex = [self.players indexOfObject:player];
+    [self.delegate updateUIForPlayerAtIndex:playerIndex];
+    
+    switch(player.state) {
+        case PLAYING:
+        case GOT_BLACKJACK: {
+            NSInteger originalPlayerBet = [self.bets valueForKey:player.identifier].integerValue;
+            [player wonChipsAmount:originalPlayerBet * 1.5];
+        }
+        case LOST:
+            self.dealer.chips += [self.bets valueForKey:player.identifier].integerValue;
+    }
 }
 
 @end

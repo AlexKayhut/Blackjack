@@ -13,9 +13,17 @@ typedef NS_ENUM (NSInteger, Decision) {
     SURRENDER
 };
 
+@protocol PlayerDelegate
+
+-(void)stateUpdatedFor:(Contestant *_Nullable)player;
+
+@end
+
+
 @interface Player : Contestant
 
-@property (nonatomic) NSInteger betAmount;
 @property (nonatomic, assign) Decision decision;
+
+- (instancetype)initWithName:(NSString *_Nullable)name chips:(NSInteger)chips delegate: (id<PlayerDelegate>_Nullable) delegate;
 
 @end

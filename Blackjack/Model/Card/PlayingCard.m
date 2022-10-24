@@ -46,6 +46,10 @@
   return PlayingCard.rankStrings[self.rank];
 }
 
+- (BOOL)isAce {
+  return [self.cardValue isEqual: @"A"];
+}
+
 // MARK: Getter/Setter
 
 - (void)setSuit:(NSString *)suit {

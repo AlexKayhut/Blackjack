@@ -17,6 +17,7 @@
 @property (nonatomic, readonly, class) NSInteger maxRank;
 
 - (NSString *)cardValue;
+- (BOOL)isAce;
 
 - (instancetype)initWithSuit:(NSString *)suit rank:(NSInteger)rank;
 

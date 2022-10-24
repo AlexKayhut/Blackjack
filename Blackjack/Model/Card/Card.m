@@ -5,7 +5,7 @@
 //  Created by Alex on 28/09/2022.
 //
 
-@import Foundation;
+#import <Foundation/Foundation.h>
 #import "Card.h"
 
 @implementation Card : NSObject

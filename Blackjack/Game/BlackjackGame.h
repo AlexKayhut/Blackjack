@@ -22,6 +22,7 @@ typedef NS_ENUM(NSInteger, State) {
 @protocol BlackjackGameDelegate
 
 -(void)updateUIForState:(State) state;
+-(void)updateUIForPlayerAtIndex:(NSInteger)index;
 -(void)betsOver;
 
 @end
@@ -48,11 +49,12 @@ typedef NS_ENUM(NSInteger, State) {
 
 @property (nonatomic, readonly, class) NSInteger cardsAmountToWin;
 @property (nonatomic, readonly, class) NSInteger dealerMinimumCardEvaluation;
+@property (nonatomic, readonly, class) NSDictionary<NSString*, NSNumber*> * _Nullable cardValues;
 
-- (instancetype _Nonnull )initWithDeck:(Deck *_Nonnull)deck numberOfPlayers:(NSInteger)numberOfPlayers delegate:(id<BlackjackGameDelegate>_Nullable)delegate;
+- (instancetype _Nonnull )initWithNumberOfPlayers:(NSInteger)numberOfPlayers delegate:(id<BlackjackGameDelegate>_Nullable)delegate;
 - (void)setBet:(NSInteger)amount;
 - (void)setDecision:(enum Decision)decision;
-- (NSInteger)evaluateCardsFor: (Contestant *_Nonnull)contestant;
+- (NSInteger)betAmountForPlayer:(Player *_Nonnull)player;
 
 @end
 
@@ -60,5 +62,11 @@ typedef NS_ENUM(NSInteger, State) {
 
 -(void)startGame;
 -(void)gameOver;
+
+@end
+
+@interface BlackjackGame (PlayerDelegate) <PlayerDelegate>
+
+-(void)stateUpdatedFor:(Contestant *_Nullable)player;
 
 @end

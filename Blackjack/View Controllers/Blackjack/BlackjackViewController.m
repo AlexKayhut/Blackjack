@@ -26,9 +26,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.game = [[BlackjackGame alloc] initWithDeck:[PlayingCardDeck new]
-                                    numberOfPlayers:self.numberOfPlayers
-                                           delegate:self];
+    self.game = [[BlackjackGame alloc] initWithNumberOfPlayers:self.numberOfPlayers delegate:self];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.decisionSegmentedControl.hidden = YES;
@@ -45,7 +43,7 @@
         UILabel *label = [UILabel new];
         label.textAlignment = NSTextAlignmentRight;
         
-        if (self.game.currentPlayer == player || player.isPlaying == NO) {
+        if (self.game.currentPlayer == player || player.state == PLAYING) {
             label.text = card.contents;
         } else {
             label.text = card.isFaceUp ? card.contents : @" -- ";
@@ -74,6 +72,11 @@
     self.dealerChipsLabel.text = [NSString stringWithFormat:@"%ld 💰", (long)self.game.dealer.chips];
     self.playingOptionsMainLabel.text = [NSString stringWithFormat:@"%@ turn:", self.game.currentPlayer.name];
     [self.tableView reloadData]; // Need to refresh every cell since I keep track of backgrouncolor for different states.
+}
+- (void)updateUIForPlayerAtIndex:(NSInteger)index {
+    NSMutableArray<NSIndexPath *> *indexPaths = [[NSMutableArray new]initWithCapacity:1];
+    [indexPaths addObject:[NSIndexPath indexPathForRow:index inSection:0]];
+    [self.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
 - (void)betsOver {
@@ -109,8 +112,7 @@
 - (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView
                  cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     NSString *cellIdentifier = PlayerCellTableViewCell.identifier;
-    PlayerCellTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier
-                                                                    forIndexPath:indexPath];
+    PlayerCellTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
     Player *player = self.game.players[indexPath.row];
     
     if (indexPath.row == [self.game.players indexOfObject:self.game.currentPlayer]) {
@@ -120,21 +122,27 @@
         [cell updateTextColorTo:UIColor.whiteColor];
     }
     
-    if (!player.isPlaying) {
-        if (player.cardsEvaluation == BlackjackGame.cardsAmountToWin) {
-            cell.backgroundColor = UIColor.greenColor;
-        } else {
-            cell.backgroundColor = UIColor.redColor;
+    switch (player.state) {
+        case PLAYING: {
+            [cell updateTextColorTo:UIColor.blackColor];
+            break;
         }
-        [cell updateTextColorTo:UIColor.blackColor];
+            
+        case GOT_BLACKJACK: {
+            cell.backgroundColor = UIColor.greenColor;
+            break;
+        }
+            
+        case LOST:
+            cell.backgroundColor = UIColor.redColor;
     }
     
     cell.name.text = player.name;
     cell.chips.text = [NSString stringWithFormat:@"%lu 💰", (unsigned long)player.chips];
-    cell.currentBet.text = [NSString stringWithFormat:@"bet: %lu 🎰", (unsigned long)player.betAmount];
+    cell.currentBet.text = [NSString stringWithFormat:@"bet: %lu 🎰", (unsigned long)[self.game betAmountForPlayer:player]];
     
-    if (self.game.currentPlayer == player || player.isPlaying == NO || self.game.gameState == GAMEOVER) {
-        cell.cardEvaluationLabel.text = [NSString stringWithFormat:@"%ld", (long)[self.game evaluateCardsFor:player]];
+    if (self.game.currentPlayer == player || player.state != PLAYING || self.game.gameState == GAMEOVER) {
+        cell.cardEvaluationLabel.text = [NSString stringWithFormat:@"%ld", (long)player.cardsEvaluation];
     } else {
         cell.cardEvaluationLabel.text = @"-";
     }
