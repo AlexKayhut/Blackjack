@@ -6,19 +6,31 @@
 //
 
 #import "Player.h"
-#import "PlayingCard.h"
-#import "BlackjackGame.h"
+
+@interface Player ()
+
+@property (nonatomic, weak, nullable) id<PlayerDelegate> delegate;
+
+@end
 
 @implementation Player
 
-@synthesize state = _state;
 @synthesize identifier = _identifier;
 
-- (ContestantState)state {
-    if (!_state) {
-        _state = PLAYING;
-    }
-    return _state;
+- (instancetype)initWithName:(NSString *)name cards:(NSArray *)cards chips:(NSInteger)chips state:(ContestantState)state delegate:(id<PlayerDelegate>)delegate {
+  self = [super initWithName:name cards:cards chips:chips state:state];
+  if (self) {
+    _delegate = delegate;
+  }
+  return self;
+}
+
+- (instancetype)initWithName:(NSString *)name chips:(NSInteger)chips delegate:(id<PlayerDelegate>)delegate {
+  self = [super initWithName:name chips:chips];
+  if (self) {
+    _delegate = delegate;
+  }
+  return self;
 }
 
 - (NSString *)identifier {
@@ -28,11 +40,9 @@
     return _identifier;
 }
 
-- (instancetype)initWithName:(NSString *)name chips:(NSInteger)chips delegate:(id)delegate {
-    self = [super initWithName:name chips:chips];
-    if (self) {
-        super._delegate = delegate;
-    }
-    return self;
+- (void)setState:(ContestantState)state {
+  [super setState:state];
+  [self.delegate hasNewChangesForPlayer:self.identifier];
 }
+
 @end

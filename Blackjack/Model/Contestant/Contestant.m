@@ -13,99 +13,82 @@
 
 @property (nonatomic) NSArray<Card *> *cards;
 @property (nonatomic) NSInteger cardsEvaluation;
-@property (nonatomic, weak, nullable) id<PlayerDelegate> delegate;
+@property (nonatomic) NSInteger currentAceCount;
 
 @end
 
 @implementation Contestant
 
-@synthesize chips = _chips;
+// MARK: Init
 
 - (instancetype)initWithName:(NSString *)name cards:(NSArray *)cards chips:(NSInteger)chips state:(ContestantState)state {
-    self = [super init];
-    if (self) {
-        _name = name;
-        _cards = cards;
-        _chips = chips;
-        _state = state;
-        _cardsEvaluation = 0;
-    }
-    return self;
+  self = [super init];
+  if (self) {
+    _name = name;
+    _cards = cards;
+    _chips = chips;
+    _state = state;
+    _cardsEvaluation = 0;
+  }
+  return self;
 }
 
 - (instancetype)initWithName:(NSString *)name chips:(NSInteger)chips {
-    return [self initWithName:name cards:[NSMutableArray new] chips:chips state:BETTING];
+  return [self initWithName:name cards:[NSMutableArray new] chips:chips state:PLAYING];
 }
 
-- (NSInteger)chips {
-    if (!_chips) {
-        _chips = 0;
-    }
-    [self.delegate stateUpdatedFor:self];
-    return _chips;
+// MARK: Player logic
+
+- (void)prepareForNewRound {
+  self.cards = [NSArray new];
+  self.state = PLAYING;
+  self.cardsEvaluation = 0;
+  self.currentAceCount = 0;
 }
 
-- (void)acceptNewCard:(Card *)card {
-    NSMutableArray<Card *> *mutableCards = [NSMutableArray arrayWithCapacity:self.cards.count];
-    [mutableCards addObjectsFromArray:self.cards];
-    [mutableCards addObject:card];
-    self.cards = mutableCards;
-    [self updateCardEvaluation];
+- (void)acceptNewCard:(PlayingCard *)card {
+  NSMutableArray<Card *> *mutableCards = [NSMutableArray arrayWithCapacity:self.cards.count];
+  [mutableCards addObjectsFromArray:self.cards];
+  [mutableCards addObject:card];
+  self.cards = mutableCards;
+  [self updateCardEvaluationWithCard:card];
 }
 
 - (void)wonChipsAmount:(NSInteger)winAmount {
-    self.chips += winAmount;
+  self.chips += winAmount;
+  self.state = GOT_BLACKJACK;
 }
 
--(NSInteger)updateCardEvaluation {
-    NSInteger contestantCardsEvaluation = 0;
-    
-    for (PlayingCard *card in self.cards) {
-        if (!card.isAce) {
-            contestantCardsEvaluation += BlackjackGame.cardValues[card.cardValue].integerValue;
-        }
-    }
-    
-    self.cardsEvaluation = [self addAceLogicToCardsEvaluation:contestantCardsEvaluation];
-    ContestantState oldState = self.state;
-    
-    if (self.cardsEvaluation == BlackjackGame.cardsAmountToWin) {
-        self.state = GOT_BLACKJACK;
-    } else if (self.cardsEvaluation > BlackjackGame.cardsAmountToWin) {
-        self.state = LOST;
+-(void)updateCardEvaluationWithCard: (PlayingCard *)card {
+    if (card.isAce) {
+      self.currentAceCount += 1;
+      self.cardsEvaluation += [self addAceLogicToCardsEvaluation:self.cardsEvaluation];
     } else {
-        self.state = PLAYING;
+      self.cardsEvaluation += BlackjackGame.cardValues[card.cardValue].integerValue;
     }
-    
-    if (oldState != self.state || self.state == BETTING) {
-        [self.delegate stateUpdatedFor:self];
-    }
-    
-    return contestantCardsEvaluation;
+
+  if (self.cardsEvaluation == BlackjackGame.cardsAmountToWin) {
+    self.state = GOT_BLACKJACK;
+  } else if (self.cardsEvaluation > BlackjackGame.cardsAmountToWin) {
+    self.state = BUST;
+  } else {
+    self.state = PLAYING;
+  }
 }
 
 -(NSInteger)addAceLogicToCardsEvaluation:(NSInteger)cardsEvaluation {
-    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(PlayingCard *value, NSDictionary *bindings) {
-        return [value.cardValue  isEqual: @"A"];
-    }];
-    
-    NSInteger numberOfAcesInHand = [self.cards filteredArrayUsingPredicate:predicate].count;
-    if (numberOfAcesInHand == 0) {
-        return cardsEvaluation;
+  const int aceFirstPossibility = 11;
+  const int aceSecondPossibility = 1;
+  
+  for (int i=0; i<self.currentAceCount;i++) {
+    if ((cardsEvaluation + aceFirstPossibility) <= BlackjackGame.cardsAmountToWin) {
+      return aceFirstPossibility;
+    } else if ((cardsEvaluation + aceSecondPossibility) <= BlackjackGame.cardsAmountToWin) {
+      return aceSecondPossibility;
     }
-    
-    const int aceFirstPossibility = 11;
-    const int aceSecondPossibility = 1;
-    
-    for (int i=0; i<numberOfAcesInHand;i++) {
-        if ((self.cardsEvaluation + aceFirstPossibility) <= BlackjackGame.cardsAmountToWin) {
-            self.cardsEvaluation += aceFirstPossibility;
-        } else if ((self.cardsEvaluation + aceSecondPossibility) <= BlackjackGame.cardsAmountToWin) {
-            self.cardsEvaluation += aceSecondPossibility;
-        }
-    }
-    
-    return cardsEvaluation;
+  }
+  NSAssert(self.currentAceCount == 0, @"This method is being called when at least 1 Ace (A) found.");
+  return 0;
 }
 
 @end

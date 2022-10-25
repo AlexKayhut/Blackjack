@@ -11,7 +11,7 @@
 
 @implementation PlayingCard
 
-@synthesize suit = _suit; // because we provide setter AND getter
+@synthesize suit = _suit;
 
 - (instancetype)initWithSuit:(NSString *)suit rank:(NSInteger)rank {
   self = [super init];

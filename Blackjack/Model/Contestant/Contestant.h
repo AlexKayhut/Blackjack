@@ -9,29 +9,35 @@
 #import "Card.h"
 
 typedef NS_ENUM(NSInteger, ContestantState) {
-    BETTING,
     PLAYING,
     GOT_BLACKJACK,
-    LOST
+    BUST
 };
+
+@protocol PlayerDelegate
+// For some reason cant pass the user
+-(void)hasNewChangesForPlayer:(NSString *_Nonnull)contestantIdentifier;
+
+@end
 
 @interface Contestant : NSObject
 
-@property (nonatomic, readonly, copy) NSString *identifier;
-@property (nonatomic, readonly, copy) NSString *name;
-@property (nonatomic, readonly) NSArray<Card *> *cards;
+@property (nonatomic, readonly, copy, nonnull) NSString *identifier;
+@property (nonatomic, readonly, copy, nonnull) NSString *name;
+@property (nonatomic, readonly, nonnull) NSArray<Card *> *cards;
 @property (nonatomic) NSInteger chips;
 @property (nonatomic, readonly) NSInteger cardsEvaluation;
 @property (nonatomic, assign) ContestantState state;
 
-- (instancetype)initWithName:(NSString *)name
-                       cards:(NSMutableArray *)cards
+- (instancetype _Nullable)initWithName:(NSString *_Nonnull)name
+                       cards:(NSArray *_Nonnull)cards
                        chips:(NSInteger)chips
                        state: (ContestantState)state;
 
-- (instancetype)initWithName:(NSString *)name chips:(NSInteger)chips;
+- (instancetype _Nullable)initWithName:(NSString *_Nullable)name chips:(NSInteger)chips;
 
-- (void)acceptNewCard: (Card *)card;
+- (void)acceptNewCard: (Card *_Nonnull)card;
 - (void)wonChipsAmount: (NSInteger)winAmount;
+- (void)prepareForNewRound;
 
 @end

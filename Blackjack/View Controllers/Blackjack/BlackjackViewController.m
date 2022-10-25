@@ -18,6 +18,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *dealerChipsLabel;
 @property (weak, nonatomic) IBOutlet UIStackView *playingOptionsStackView;
 @property (weak, nonatomic) IBOutlet UILabel *playingOptionsMainLabel;
+@property (weak, nonatomic) IBOutlet UIButton *actionButton;
+@property (weak, nonatomic) IBOutlet UILabel *dealerEvaluationLabel;
 @property (nonatomic) BlackjackGame *game;
 
 @end
@@ -25,134 +27,143 @@
 @implementation BlackjackViewController
 
 - (void)viewDidLoad {
-    [super viewDidLoad];
-    self.game = [[BlackjackGame alloc] initWithNumberOfPlayers:self.numberOfPlayers delegate:self];
-    self.tableView.delegate = self;
-    self.tableView.dataSource = self;
-    self.decisionSegmentedControl.hidden = YES;
-    
-    [self.game startGame];
+  [super viewDidLoad];
+  self.tableView.delegate = self;
+  self.tableView.dataSource = self;
+  [self initilizeGame];
+}
+
+- (void)initilizeGame {
+  self.game = [[BlackjackGame alloc] initWithNumberOfPlayers:self.numberOfPlayers delegate:self];
+  [self resetUI];
+}
+
+- (void)resetUI {
+  self.betSegmentedControl.hidden = NO;
+  self.decisionSegmentedControl.hidden = YES;
+  self.actionButton.hidden = YES;
+  self.dealerEvaluationLabel.text = @"0";
 }
 
 -(void)addCardViewsTo:(UIStackView *)stackView fromPlayer:(Contestant *)player {
-    for (UIView *cardView in stackView.arrangedSubviews) {
-        [cardView removeFromSuperview];
-    }
-    
-    for (Card *card in player.cards) {
-        UILabel *label = [UILabel new];
-        label.textAlignment = NSTextAlignmentRight;
-        
-        if (self.game.currentPlayer == player || player.state == PLAYING) {
-            label.text = card.contents;
-        } else {
-            label.text = card.isFaceUp ? card.contents : @" -- ";
-        }
-        
-        [stackView addArrangedSubview:label];
-    }
+  for (UIView *cardView in stackView.arrangedSubviews) {
+    [cardView removeFromSuperview];
+  }
+  
+  for (Card *card in player.cards) {
+    UILabel *label = [UILabel new];
+    label.textAlignment = NSTextAlignmentRight;
+    label.text = card.isFaceUp ? card.contents : @" -- ";
+    [stackView addArrangedSubview:label];
+  }
 }
 
 // MARK: - BlackjackGameDelegate
 
-- (void)updateUIForState:(State)state {
-    switch (state) {
-        case AWAITING_DEALER: {
-            [self addCardViewsTo:self.dealerCardsStackView fromPlayer:self.game.dealer];
-            break;
-        }
-            
-        case COLLECT_BETS: {
-            self.betSegmentedControl.selectedSegmentIndex = 0;
-            break;
-        }
-            
-        default: break;
-    }
-    self.dealerChipsLabel.text = [NSString stringWithFormat:@"%ld 💰", (long)self.game.dealer.chips];
-    self.playingOptionsMainLabel.text = [NSString stringWithFormat:@"%@ turn:", self.game.currentPlayer.name];
-    [self.tableView reloadData]; // Need to refresh every cell since I keep track of backgrouncolor for different states.
+- (void)updateUIForDealer {
+//  self.dealerEvaluationLabel.text = [NSString stringWithFormat:@"%ld", (long)self.game.dealer.cardsEvaluation];
+  [self addCardViewsTo:self.dealerCardsStackView fromPlayer:self.game.dealer];
+  self.dealerChipsLabel.text = [NSString stringWithFormat:@"%ld 💰", (long)self.game.dealer.chips];
 }
-- (void)updateUIForPlayerAtIndex:(NSInteger)index {
-    NSMutableArray<NSIndexPath *> *indexPaths = [[NSMutableArray new]initWithCapacity:1];
-    [indexPaths addObject:[NSIndexPath indexPathForRow:index inSection:0]];
-    [self.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+
+- (void)updateUIForPlayerAtIndex:(NSArray<NSNumber *>*)array {
+  NSMutableArray<NSIndexPath *> *indexPaths = [[NSMutableArray alloc]initWithCapacity: array.count];
+  for (NSNumber *number in array) {
+    [indexPaths addObject:[NSIndexPath indexPathForRow: number.integerValue inSection:0]];
+  }
+  [self.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
 - (void)betsOver {
-    self.betSegmentedControl.hidden = YES;
-    self.decisionSegmentedControl.hidden = NO;
+  self.betSegmentedControl.hidden = YES;
+  self.decisionSegmentedControl.hidden = NO;
+}
+
+- (void)roundOver {
+  self.actionButton.hidden = NO;
+  self.decisionSegmentedControl.hidden = YES;
+  [self.actionButton setTitle:@"Next Round" forState:UIControlStateNormal];
+}
+
+- (void)gameOver {
+  self.actionButton.hidden = YES;
+  self.decisionSegmentedControl.hidden = YES;
 }
 
 // MARK: - IBActions
 
 - (IBAction)betSegmentedControlValueChanged:(UISegmentedControl *)sender {
-    NSString *selectedSegmentTitle = [self.betSegmentedControl
-                                      titleForSegmentAtIndex:self.betSegmentedControl.selectedSegmentIndex];
-    if ([selectedSegmentTitle isEqualToString: @"-"]) {
-        return;
-    }
-    [self.game setBet:selectedSegmentTitle.integerValue];
-    self.betSegmentedControl.selectedSegmentIndex = 0;
+  NSString *selectedSegmentTitle = [self.betSegmentedControl
+                                    titleForSegmentAtIndex:self.betSegmentedControl.selectedSegmentIndex];
+  if ([selectedSegmentTitle isEqualToString: @"-"]) {
+    return;
+  }
+  [self.game collectBet:selectedSegmentTitle.integerValue];
+  self.betSegmentedControl.selectedSegmentIndex = 0;
 }
 
 - (IBAction)decisionSegmentedControlValueChanged:(UISegmentedControl *)sender {
-    NSString *selectedSegmentTitle = [self.decisionSegmentedControl
-                                      titleForSegmentAtIndex:self.decisionSegmentedControl.selectedSegmentIndex];
-    if ([selectedSegmentTitle isEqualToString: @"-"]) {
-        return;
-    }
-    
-    [self.game setDecision:(self.decisionSegmentedControl.selectedSegmentIndex-1)];
-    self.decisionSegmentedControl.selectedSegmentIndex = 0;
+  NSString *selectedSegmentTitle = [self.decisionSegmentedControl
+                                    titleForSegmentAtIndex:self.decisionSegmentedControl.selectedSegmentIndex];
+  if ([selectedSegmentTitle isEqualToString: @"-"]) {
+    return;
+  }
+  
+  [self.game collectDecision:(self.decisionSegmentedControl.selectedSegmentIndex-1)];
+  self.decisionSegmentedControl.selectedSegmentIndex = 0;
+}
+
+- (IBAction)actionButtonDidTap:(UIButton *)sender {
+  [self.game prepareForNewRound];
+  [self resetUI];
 }
 
 // MARK: Table View
 
 - (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView
                  cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
-    NSString *cellIdentifier = PlayerCellTableViewCell.identifier;
-    PlayerCellTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
-    Player *player = self.game.players[indexPath.row];
-    
-    if (indexPath.row == [self.game.players indexOfObject:self.game.currentPlayer]) {
-        cell.backgroundColor = UIColor.whiteColor;
-        [cell updateTextColorTo:UIColor.blackColor];
-    } else {
-        [cell updateTextColorTo:UIColor.whiteColor];
+  NSString *cellIdentifier = PlayerCellTableViewCell.identifier;
+  PlayerCellTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
+  Player *player = self.game.players[indexPath.row];
+  
+  if (indexPath.row == [self.game.players indexOfObject:self.game.currentPlayer]) {
+    cell.backgroundColor = UIColor.whiteColor;
+    self.playingOptionsMainLabel.text = [NSString stringWithFormat:@"%@ turn:", player.name];
+  }
+  
+  switch (player.state) {
+    case PLAYING: {
+      [cell updateTextColorTo:UIColor.blackColor];
+      break;
     }
-    
-    switch (player.state) {
-        case PLAYING: {
-            [cell updateTextColorTo:UIColor.blackColor];
-            break;
-        }
-            
-        case GOT_BLACKJACK: {
-            cell.backgroundColor = UIColor.greenColor;
-            break;
-        }
-            
-        case LOST:
-            cell.backgroundColor = UIColor.redColor;
+      
+    case GOT_BLACKJACK: {
+      cell.backgroundColor = UIColor.greenColor;
+      break;
     }
-    
-    cell.name.text = player.name;
-    cell.chips.text = [NSString stringWithFormat:@"%lu 💰", (unsigned long)player.chips];
-    cell.currentBet.text = [NSString stringWithFormat:@"bet: %lu 🎰", (unsigned long)[self.game betAmountForPlayer:player]];
-    
-    if (self.game.currentPlayer == player || player.state != PLAYING || self.game.gameState == GAMEOVER) {
-        cell.cardEvaluationLabel.text = [NSString stringWithFormat:@"%ld", (long)player.cardsEvaluation];
-    } else {
-        cell.cardEvaluationLabel.text = @"-";
+      
+    case BUST: {
+      cell.backgroundColor = UIColor.redColor;
+      break;
     }
-    
-    [self addCardViewsTo:cell.cardsStackView fromPlayer:player];
-    return cell;
+  }
+  
+  cell.name.text = player.name;
+  cell.chips.text = [NSString stringWithFormat:@"%lu 💰", (unsigned long)player.chips];
+  cell.currentBet.text = [NSString stringWithFormat:@"bet: %lu", (unsigned long)[self.game betAmountForPlayer:player]];
+  
+  //    if (self.game.currentPlayer == player || player.state != PLAYING || self.game.gameState == GAMEOVER) {
+  cell.cardEvaluationLabel.text = [NSString stringWithFormat:@"%ld", (long)player.cardsEvaluation];
+  //    } else {
+  //        cell.cardEvaluationLabel.text = @"-";
+  //    }
+  
+  [self addCardViewsTo:cell.cardsStackView fromPlayer:player];
+  return cell;
 }
 
 - (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.game.players.count;
+  return self.game.players.count;
 }
 
 @end

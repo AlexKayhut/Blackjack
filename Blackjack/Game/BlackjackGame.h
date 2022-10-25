@@ -6,24 +6,17 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "Deck.h"
 #import "Player.h"
-
-typedef NS_ENUM(NSInteger, State) {
-    COLLECT_BETS,
-    DEAL_CARDS,
-    AWAITING_PLAYERS_DECISION,
-    AWAITING_DEALER,
-    GAMEOVER
-};
 
 // MARK: - BlackjackGame Delegate
 
 @protocol BlackjackGameDelegate
 
--(void)updateUIForState:(State) state;
--(void)updateUIForPlayerAtIndex:(NSInteger)index;
+-(void)updateUIForDealer;
+-(void)updateUIForPlayerAtIndex:(NSArray<NSNumber *>*_Nonnull)array;
 -(void)betsOver;
+-(void)gameOver;
+-(void)roundOver;
 
 @end
 
@@ -32,18 +25,15 @@ typedef NS_ENUM(NSInteger, State) {
 @protocol Game
 
 @property (nonatomic, copy, readonly) NSArray<Player *> * _Nullable players;
--(void)startGame;
--(void)gameOver;
+-(void)prepareForNewRound;
 
 @end
 
 @interface BlackjackGame : NSObject
 
-@property (nonatomic, strong, nullable) Player *currentPlayer;
-@property (nonatomic, copy, nullable) NSArray<Player *> *players;
+@property (nonatomic, strong, readonly, nullable) Player *currentPlayer;
 @property (nonatomic, strong, readonly, nullable) Contestant *dealer;
 @property (nonatomic, weak, nullable) id<BlackjackGameDelegate> delegate;
-@property (nonatomic, readonly, assign) State gameState;
 
 // MARK: class properties
 
@@ -52,21 +42,24 @@ typedef NS_ENUM(NSInteger, State) {
 @property (nonatomic, readonly, class) NSDictionary<NSString*, NSNumber*> * _Nullable cardValues;
 
 - (instancetype _Nonnull )initWithNumberOfPlayers:(NSInteger)numberOfPlayers delegate:(id<BlackjackGameDelegate>_Nullable)delegate;
-- (void)setBet:(NSInteger)amount;
-- (void)setDecision:(enum Decision)decision;
+- (void)collectBet:(NSInteger)amount;
+- (void)collectDecision:(enum Decision)decision;
 - (NSInteger)betAmountForPlayer:(Player *_Nonnull)player;
 
 @end
 
+// MARK: Game Protocol
+
 @interface BlackjackGame (Game) <Game>
 
--(void)startGame;
--(void)gameOver;
+-(void)prepareForNewRound;
 
 @end
 
+// MARK: Player Delegate
+
 @interface BlackjackGame (PlayerDelegate) <PlayerDelegate>
 
--(void)stateUpdatedFor:(Contestant *_Nullable)player;
+-(void)hasNewChangesForPlayer:(Player *_Nullable)player;
 
 @end
