@@ -13,7 +13,9 @@
 
 @property (nonatomic) NSArray<Card *> *cards;
 @property (nonatomic) NSInteger cardsEvaluation;
+@property (nonatomic) NSInteger cardsEvaluationWithoutAces;
 @property (nonatomic) NSInteger currentAceCount;
+@property (nonatomic) NSInteger chips;
 
 @end
 
@@ -29,6 +31,7 @@
     _chips = chips;
     _state = state;
     _cardsEvaluation = 0;
+    _identifier = [[NSUUID UUID] UUIDString];
   }
   return self;
 }
@@ -41,9 +44,9 @@
 
 - (void)prepareForNewRound {
   self.cards = [NSArray new];
-  self.state = PLAYING;
   self.cardsEvaluation = 0;
   self.currentAceCount = 0;
+  self.state = PLAYING;
 }
 
 - (void)acceptNewCard:(PlayingCard *)card {
@@ -59,13 +62,24 @@
   self.state = GOT_BLACKJACK;
 }
 
+- (void)collectBet:(NSInteger)betAmount {
+  self.chips -= betAmount;
+}
+
 -(void)updateCardEvaluationWithCard: (PlayingCard *)card {
     if (card.isAce) {
       self.currentAceCount += 1;
       self.cardsEvaluation += [self addAceLogicToCardsEvaluation:self.cardsEvaluation];
     } else {
       self.cardsEvaluation += BlackjackGame.cardValues[card.cardValue].integerValue;
+      self.cardsEvaluationWithoutAces += BlackjackGame.cardValues[card.cardValue].integerValue;
     }
+  
+  BOOL shouldReEvaluteCardsWithAces = self.currentAceCount > 0 && self.cardsEvaluation > BlackjackGame.cardsAmountToWin && self.cardsEvaluationWithoutAces < BlackjackGame.cardsAmountToWin;
+  
+  if (shouldReEvaluteCardsWithAces) {
+    self.cardsEvaluation = self.cardsEvaluationWithoutAces + [self addAceLogicToCardsEvaluation:self.cardsEvaluationWithoutAces];
+  }
 
   if (self.cardsEvaluation == BlackjackGame.cardsAmountToWin) {
     self.state = GOT_BLACKJACK;

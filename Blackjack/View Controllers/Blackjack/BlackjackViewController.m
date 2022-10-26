@@ -6,7 +6,6 @@
 //
 
 #import "BlackjackViewController.h"
-#import "PlayingCardDeck.h"
 #import "PlayerCellTableViewCell.h"
 
 @interface BlackjackViewController ()
@@ -16,11 +15,10 @@
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (weak, nonatomic) IBOutlet UIStackView *dealerCardsStackView;
 @property (weak, nonatomic) IBOutlet UILabel *dealerChipsLabel;
-@property (weak, nonatomic) IBOutlet UIStackView *playingOptionsStackView;
 @property (weak, nonatomic) IBOutlet UILabel *playingOptionsMainLabel;
 @property (weak, nonatomic) IBOutlet UIButton *actionButton;
 @property (weak, nonatomic) IBOutlet UILabel *dealerEvaluationLabel;
-@property (nonatomic) BlackjackGame *game;
+@property (nonatomic, strong) BlackjackGame *game;
 
 @end
 
@@ -30,10 +28,6 @@
   [super viewDidLoad];
   self.tableView.delegate = self;
   self.tableView.dataSource = self;
-  [self initilizeGame];
-}
-
-- (void)initilizeGame {
   self.game = [[BlackjackGame alloc] initWithNumberOfPlayers:self.numberOfPlayers delegate:self];
   [self resetUI];
 }
@@ -61,7 +55,7 @@
 // MARK: - BlackjackGameDelegate
 
 - (void)updateUIForDealer {
-//  self.dealerEvaluationLabel.text = [NSString stringWithFormat:@"%ld", (long)self.game.dealer.cardsEvaluation];
+  //  self.dealerEvaluationLabel.text = [NSString stringWithFormat:@"%ld", (long)self.game.dealer.cardsEvaluation];
   [self addCardViewsTo:self.dealerCardsStackView fromPlayer:self.game.dealer];
   self.dealerChipsLabel.text = [NSString stringWithFormat:@"%ld 💰", (long)self.game.dealer.chips];
 }
@@ -72,6 +66,10 @@
     [indexPaths addObject:[NSIndexPath indexPathForRow: number.integerValue inSection:0]];
   }
   [self.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+}
+
+- (void)focusOnPlayerAtIndex: (NSInteger) index {
+  [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow: index inSection:0] atScrollPosition:UITableViewScrollPositionNone animated:true];
 }
 
 - (void)betsOver {
@@ -131,26 +129,15 @@
     self.playingOptionsMainLabel.text = [NSString stringWithFormat:@"%@ turn:", player.name];
   }
   
-  switch (player.state) {
-    case PLAYING: {
-      [cell updateTextColorTo:UIColor.blackColor];
-      break;
-    }
-      
-    case GOT_BLACKJACK: {
-      cell.backgroundColor = UIColor.greenColor;
-      break;
-    }
-      
-    case BUST: {
-      cell.backgroundColor = UIColor.redColor;
-      break;
-    }
+  if (player.state == GOT_BLACKJACK) {
+    cell.backgroundColor = UIColor.greenColor;
+  } else if (player.state == BUST) {
+    cell.backgroundColor = UIColor.redColor;
   }
   
   cell.name.text = player.name;
   cell.chips.text = [NSString stringWithFormat:@"%lu 💰", (unsigned long)player.chips];
-  cell.currentBet.text = [NSString stringWithFormat:@"bet: %lu", (unsigned long)[self.game betAmountForPlayer:player]];
+  cell.currentBet.text = [NSString stringWithFormat:@"bet: %lu", (unsigned long)[self.game getBetAmountForPlayer:player]];
   
   //    if (self.game.currentPlayer == player || player.state != PLAYING || self.game.gameState == GAMEOVER) {
   cell.cardEvaluationLabel.text = [NSString stringWithFormat:@"%ld", (long)player.cardsEvaluation];

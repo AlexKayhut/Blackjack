@@ -13,18 +13,26 @@ typedef NS_ENUM (NSInteger, Decision) {
     SURRENDER
 };
 
+@class Player;
+
+@protocol PlayerDelegate
+
+-(void)hasNewChangesForPlayer:(Player *_Nonnull)player;
+
+@end
+
 @interface Player : Contestant
 
-@property (nonatomic, assign) Decision decision;
+@property (nonatomic, readonly, assign) Decision decision;
 
 - (instancetype _Nullable)initWithName:(NSString *_Nonnull)name
-                       cards:(NSArray *_Nonnull)cards
-                       chips:(NSInteger)chips
-                       state: (ContestantState)state
-                    delegate: (id<PlayerDelegate>_Nullable) delegate;
-
-- (instancetype _Nullable)initWithName:(NSString *_Nullable)name
+                                 cards:(NSArray *_Nonnull)cards
                                  chips:(NSInteger)chips
-                              delegate: (id<PlayerDelegate>_Nullable) delegate;
+                                 state:(ContestantState)state
+                              delegate:(id<PlayerDelegate>_Nullable) delegate;
+
+- (instancetype _Nullable)initWithName:(NSString *_Nonnull)name
+                                 chips:(NSInteger)chips
+                              delegate:(id<PlayerDelegate>_Nullable) delegate;
 
 @end

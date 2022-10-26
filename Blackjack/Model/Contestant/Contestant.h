@@ -14,18 +14,12 @@ typedef NS_ENUM(NSInteger, ContestantState) {
     BUST
 };
 
-@protocol PlayerDelegate
-// For some reason cant pass the user
--(void)hasNewChangesForPlayer:(NSString *_Nonnull)contestantIdentifier;
-
-@end
-
 @interface Contestant : NSObject
 
 @property (nonatomic, readonly, copy, nonnull) NSString *identifier;
 @property (nonatomic, readonly, copy, nonnull) NSString *name;
-@property (nonatomic, readonly, nonnull) NSArray<Card *> *cards;
-@property (nonatomic) NSInteger chips;
+@property (nonatomic, readonly, nonnull) NSArray<Card *> *cards; // should be copy?
+@property (nonatomic, readonly) NSInteger chips;
 @property (nonatomic, readonly) NSInteger cardsEvaluation;
 @property (nonatomic, assign) ContestantState state;
 
@@ -38,6 +32,7 @@ typedef NS_ENUM(NSInteger, ContestantState) {
 
 - (void)acceptNewCard: (Card *_Nonnull)card;
 - (void)wonChipsAmount: (NSInteger)winAmount;
+- (void)collectBet:(NSInteger)betAmount;
 - (void)prepareForNewRound;
 
 @end

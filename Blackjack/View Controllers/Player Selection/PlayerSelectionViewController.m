@@ -10,8 +10,6 @@
 
 @interface PlayerSelectionViewController ()
 
-@property (weak, nonatomic) IBOutlet UIView *playerSelectionView;
-@property (weak, nonatomic) IBOutlet UIButton *startButton;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *numOfPlayersSegmentedControl;
 
 @end

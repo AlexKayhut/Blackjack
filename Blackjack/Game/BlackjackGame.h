@@ -14,6 +14,7 @@
 
 -(void)updateUIForDealer;
 -(void)updateUIForPlayerAtIndex:(NSArray<NSNumber *>*_Nonnull)array;
+-(void)focusOnPlayerAtIndex: (NSInteger)index;
 -(void)betsOver;
 -(void)gameOver;
 -(void)roundOver;
@@ -31,20 +32,21 @@
 
 @interface BlackjackGame : NSObject
 
-@property (nonatomic, strong, readonly, nullable) Player *currentPlayer;
-@property (nonatomic, strong, readonly, nullable) Contestant *dealer;
+@property (nonatomic, strong, readonly, nonnull) Player *currentPlayer;
+@property (nonatomic, strong, readonly, nonnull) Contestant *dealer;
 @property (nonatomic, weak, nullable) id<BlackjackGameDelegate> delegate;
 
 // MARK: class properties
 
 @property (nonatomic, readonly, class) NSInteger cardsAmountToWin;
 @property (nonatomic, readonly, class) NSInteger dealerMinimumCardEvaluation;
-@property (nonatomic, readonly, class) NSDictionary<NSString*, NSNumber*> * _Nullable cardValues;
+@property (nonatomic, readonly, class, nonnull) NSDictionary<NSString*, NSNumber*> * cardValues;
 
-- (instancetype _Nonnull )initWithNumberOfPlayers:(NSInteger)numberOfPlayers delegate:(id<BlackjackGameDelegate>_Nullable)delegate;
+- (instancetype _Nonnull )initWithNumberOfPlayers:(NSInteger)numberOfPlayers
+                                         delegate:(id<BlackjackGameDelegate>_Nullable)delegate;
 - (void)collectBet:(NSInteger)amount;
-- (void)collectDecision:(enum Decision)decision;
-- (NSInteger)betAmountForPlayer:(Player *_Nonnull)player;
+- (void)collectDecision:(Decision)decision;
+- (NSInteger)getBetAmountForPlayer:(Player *_Nonnull)player;
 
 @end
 

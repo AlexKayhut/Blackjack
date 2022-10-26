@@ -14,10 +14,10 @@
 
 @interface BlackjackGame ()
 
-@property (nonatomic, strong, readonly) Deck *deck;
+@property (nonatomic, strong) Deck *deck;
 @property (nonatomic, copy) NSMutableDictionary<NSString*, NSNumber*> *bets;
-@property (nonatomic, strong, nullable) Player *currentPlayer;
-@property (nonatomic, copy) NSArray<Player *> * _Nullable players;
+@property (nonatomic, strong, nonnull) Player *currentPlayer;
+@property (nonatomic, copy, nonnull) NSArray<Player *> *players;
 
 @end
 
@@ -25,7 +25,10 @@
 
 @implementation BlackjackGame
 
-- (NSInteger)betAmountForPlayer:(Player *)player {
+const NSInteger minimumBuyin = 50;
+const NSInteger minimumRoundBet = 5;
+
+- (NSInteger)getBetAmountForPlayer:(Player *)player {
   return [self.bets valueForKey:player.identifier].integerValue;
 }
 
@@ -58,7 +61,7 @@
     
     for (int i=0; i<numberOfPlayers; i++) {
       NSString *name = [NSString stringWithFormat:@"Player #%d", i+1];
-      Player *player = [[Player alloc] initWithName:name chips: 50 delegate:self];
+      Player *player = [[Player alloc] initWithName:name chips: minimumBuyin delegate:self];
       [newPlayers addObject: player];
     }
     _players = newPlayers;
@@ -82,7 +85,7 @@
 
 - (NSArray<Player *> *)playersAvailableForNextFound {
   NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(Player *player, NSDictionary *bindings) {
-    return player.chips >= 5;
+    return player.chips >= minimumRoundBet;
   }];
   return [self.players filteredArrayUsingPredicate:predicate];
 }
@@ -97,13 +100,8 @@
       [self.currentPlayer acceptNewCard:[self.deck drawRandomCardWithFaceUp:YES]];
       
       if (self.currentPlayer.state == PLAYING) {
-        // Continue
-      } else if (isLastPlayer) {
-        [self finlizeRound];
-      } else {
-        [self nextPlayer];
+        return;
       }
-      
       break;
     }
       
@@ -111,20 +109,21 @@
       self.currentPlayer.state = BUST;
       
     case STAND: {
-      if (isLastPlayer) {
-        [self finlizeRound];
-      } else {
-        [self nextPlayer];
-      }
       break;
     }
+  }
+  
+  if (isLastPlayer) {
+    [self finlizeRound];
+  } else {
+    [self nextPlayer];
   }
 }
 
 - (void)collectBet:(NSInteger)amount {
   if (self.currentPlayer.chips >= amount) {
     [self.bets setObject:[NSNumber numberWithInteger:amount] forKey:self.currentPlayer.identifier];
-    self.currentPlayer.chips -= amount;
+    [self.currentPlayer collectBet:amount];
     [self nextPlayer];
   } else {
     NSAssert(self.currentPlayer.chips < amount, @"Player should never get to this point");
@@ -158,6 +157,7 @@
     switch(nextPlayer.state) {
       case GOT_BLACKJACK:
       case BUST: {
+        self.currentPlayer = nextPlayer;
         [self nextPlayer];
         break;
       }
@@ -167,10 +167,12 @@
         self.currentPlayer = nextPlayer;
         NSNumber *nextPlayerIndex = [NSNumber numberWithInteger:[self.players indexOfObject: nextPlayer]];
         [self.delegate updateUIForPlayerAtIndex: [NSArray arrayWithObjects:currentPlayerIndex, nextPlayerIndex, nil]];
+        [self.delegate focusOnPlayerAtIndex:nextPlayerIndex.integerValue];
       }
     }
   } else {
     self.currentPlayer = [self currentActivePlayers].firstObject;
+    [self.delegate focusOnPlayerAtIndex:[self.players indexOfObject: self.currentPlayer]];
   }
 }
 
@@ -184,32 +186,34 @@
 }
 
 -(void)handlePlayersBetsInRound {
-  for (Player *player in [self players]) {
-    BOOL dealerBust = self.dealer.state == BUST;
-    BOOL playerBitDealer = dealerBust || (player.cardsEvaluation > self.dealer.cardsEvaluation && player.cardsEvaluation < BlackjackGame.cardsAmountToWin);
+  for (Player *player in self.players) {
+    BOOL dealerBitPlayer = (self.dealer.cardsEvaluation > player.cardsEvaluation && self.dealer.cardsEvaluation <= BlackjackGame.cardsAmountToWin) || (self.dealer.state == BUST && player.state == BUST);
     BOOL playerAndDealerEqualEvaluation = player.cardsEvaluation == self.dealer.cardsEvaluation;
+    NSLog( @"%@", [NSString stringWithFormat:@"%@, %ld, %ld", player.name, (long)player.cardsEvaluation, (long)self.dealer.cardsEvaluation]);
+    
     
     NSInteger originalBetAmount = self.bets[player.identifier].integerValue;
     [self.bets removeObjectForKey:player.identifier];
     
-    if (playerAndDealerEqualEvaluation || !playerBitDealer || !dealerBust) {
-      player.state = BUST;
-      self.dealer.chips += originalBetAmount;
-      [self.delegate updateUIForDealer];
-      return;
-    }
-    
     switch(player.state) {
       case PLAYING:
       case GOT_BLACKJACK: {
-        float rate = player.state == PLAYING ? 2.0 : 1.5;
-        [player wonChipsAmount:originalBetAmount * rate];
-        [self.delegate updateUIForPlayerAtIndex:[NSArray arrayWithObjects:[NSNumber numberWithInteger:[self.players indexOfObject:player]], nil]];
+        
+        if (playerAndDealerEqualEvaluation || dealerBitPlayer) {
+          player.state = BUST;
+          [self.dealer wonChipsAmount:originalBetAmount];
+          [self.delegate updateUIForDealer];
+          continue;
+        } else {
+          float rate = player.state == PLAYING ? 2.0 : 1.5;
+          [player wonChipsAmount:originalBetAmount * rate];
+          [self.delegate updateUIForPlayerAtIndex:[NSArray arrayWithObjects:[NSNumber numberWithInteger:[self.players indexOfObject:player]], nil]];
+        }
         break;
       }
         
       case BUST: {
-        self.dealer.chips += originalBetAmount;
+        [self.dealer wonChipsAmount:originalBetAmount];
         [self.delegate updateUIForDealer];
       }
     }
@@ -235,6 +239,7 @@
 
 - (void)prepareForNewRound {
   [self.bets removeAllObjects];
+  self.deck = [PlayingCardDeck new];
   self.players = [self playersAvailableForNextFound];
   self.currentPlayer = self.players.firstObject;
   for (Player *player in self.players) {

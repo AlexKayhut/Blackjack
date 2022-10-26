@@ -9,13 +9,16 @@
 
 @interface PlayerCellTableViewCell : UITableViewCell
 
+// MARK: Outlets
+
 @property (weak, nonatomic) IBOutlet UILabel *name;
 @property (weak, nonatomic) IBOutlet UILabel *chips;
 @property (weak, nonatomic) IBOutlet UILabel *currentBet;
 @property (weak, nonatomic) IBOutlet UIStackView *cardsStackView;
 @property (weak, nonatomic) IBOutlet UILabel *cardEvaluationLabel;
-@property (nonatomic, readonly, class) NSString *identifier;
 
-- (void)updateTextColorTo:(UIColor *)color;
+// MARK: class Propertie
+
+@property (nonatomic, readonly, class) NSString *identifier;
 
 @end

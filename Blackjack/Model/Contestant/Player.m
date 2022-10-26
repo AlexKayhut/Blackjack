@@ -14,9 +14,6 @@
 @end
 
 @implementation Player
-
-@synthesize identifier = _identifier;
-
 - (instancetype)initWithName:(NSString *)name cards:(NSArray *)cards chips:(NSInteger)chips state:(ContestantState)state delegate:(id<PlayerDelegate>)delegate {
   self = [super initWithName:name cards:cards chips:chips state:state];
   if (self) {
@@ -33,16 +30,9 @@
   return self;
 }
 
-- (NSString *)identifier {
-    if (!_identifier) {
-        _identifier = [[NSUUID UUID] UUIDString];
-    }
-    return _identifier;
-}
-
 - (void)setState:(ContestantState)state {
   [super setState:state];
-  [self.delegate hasNewChangesForPlayer:self.identifier];
+  [self.delegate hasNewChangesForPlayer:self];
 }
 
 @end

@@ -78,8 +78,6 @@
                     </view>
                     <connections>
                         <outlet property="numOfPlayersSegmentedControl" destination="zoX-fY-H4i" id="UyW-4j-Ydf"/>
-                        <outlet property="playerSelectionView" destination="ofq-z1-W8l" id="Gw4-2P-HQF"/>
-                        <outlet property="startButton" destination="Qub-rh-BrL" id="Y4T-kY-aFy"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -289,7 +287,6 @@
                         <outlet property="dealerEvaluationLabel" destination="OeH-nh-SHt" id="Jba-bd-Cg9"/>
                         <outlet property="decisionSegmentedControl" destination="n9n-wi-PoO" id="xnA-Fj-GZ2"/>
                         <outlet property="playingOptionsMainLabel" destination="uhr-Bf-Xda" id="MJn-sZ-OaE"/>
-                        <outlet property="playingOptionsStackView" destination="IBv-Rl-Jr4" id="9Tc-ZW-UHN"/>
                         <outlet property="tableView" destination="8eO-my-C3L" id="8IY-I6-Cvn"/>
                     </connections>
                 </viewController>
