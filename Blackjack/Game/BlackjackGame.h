@@ -33,7 +33,7 @@
 @interface BlackjackGame : NSObject
 
 @property (nonatomic, strong, readonly, nonnull) Player *currentPlayer;
-@property (nonatomic, strong, readonly, nonnull) Contestant *dealer;
+@property (nonatomic, strong, readonly, nonnull) Player *dealer;
 @property (nonatomic, weak, nullable) id<BlackjackGameDelegate> delegate;
 
 // MARK: class properties

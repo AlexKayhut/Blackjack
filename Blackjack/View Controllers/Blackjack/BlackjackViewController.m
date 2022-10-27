@@ -39,7 +39,7 @@
   self.dealerEvaluationLabel.text = @"0";
 }
 
--(void)addCardViewsTo:(UIStackView *)stackView fromPlayer:(Contestant *)player {
+-(void)addCardViewsTo:(UIStackView *)stackView fromPlayer:(Player *)player {
   for (UIView *cardView in stackView.arrangedSubviews) {
     [cardView removeFromSuperview];
   }
