@@ -18,17 +18,17 @@ typedef NS_ENUM(NSInteger, ContestantState) {
 
 @property (nonatomic, readonly, copy, nonnull) NSString *identifier;
 @property (nonatomic, readonly, copy, nonnull) NSString *name;
-@property (nonatomic, readonly, nonnull) NSArray<Card *> *cards; // should be copy?
+@property (nonatomic, readonly, copy, nonnull) NSArray<Card *> *cards;
 @property (nonatomic, readonly) NSInteger chips;
 @property (nonatomic, readonly) NSInteger cardsEvaluation;
 @property (nonatomic, assign) ContestantState state;
 
-- (instancetype _Nullable)initWithName:(NSString *_Nonnull)name
+- (instancetype _Nonnull)initWithName:(NSString *_Nonnull)name
                        cards:(NSArray *_Nonnull)cards
                        chips:(NSInteger)chips
                        state: (ContestantState)state;
 
-- (instancetype _Nullable)initWithName:(NSString *_Nullable)name chips:(NSInteger)chips;
+- (instancetype _Nonnull)initWithName:(NSString *_Nonnull)name chips:(NSInteger)chips;
 
 - (void)acceptNewCard: (Card *_Nonnull)card;
 - (void)wonChipsAmount: (NSInteger)winAmount;

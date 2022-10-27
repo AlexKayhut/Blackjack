@@ -25,7 +25,7 @@
 
 @protocol Game
 
-@property (nonatomic, copy, readonly) NSArray<Player *> * _Nullable players;
+@property (nonatomic, copy, readonly) NSArray<Player *> *_Nonnull players;
 -(void)prepareForNewRound;
 
 @end
@@ -40,7 +40,7 @@
 
 @property (nonatomic, readonly, class) NSInteger cardsAmountToWin;
 @property (nonatomic, readonly, class) NSInteger dealerMinimumCardEvaluation;
-@property (nonatomic, readonly, class, nonnull) NSDictionary<NSString*, NSNumber*> * cardValues;
+@property (nonatomic, readonly, class, nonnull) NSDictionary<NSString*, NSNumber*> *cardValues;
 
 - (instancetype _Nonnull )initWithNumberOfPlayers:(NSInteger)numberOfPlayers
                                          delegate:(id<BlackjackGameDelegate>_Nullable)delegate;
