@@ -50,6 +50,7 @@
 - (void)prepareForNewRound {
     self.cards = [NSArray new];
     self.cardsEvaluation = 0;
+    self.cardsEvaluationWithoutAces = 0;
     self.currentAceCount = 0;
     self.state = PLAYING;
 }
@@ -74,7 +75,7 @@
 -(void)updateCardEvaluationWithCard: (PlayingCard *)card {
     if (card.isAce) {
         self.currentAceCount += 1;
-        self.cardsEvaluation += [self addAceLogicToCardsEvaluation:self.cardsEvaluation];
+        self.cardsEvaluation += [self getBestAceValueForCardsEvaluation:self.cardsEvaluation];
     } else {
         self.cardsEvaluation += BlackjackGame.cardValues[card.cardValue].integerValue;
         self.cardsEvaluationWithoutAces += BlackjackGame.cardValues[card.cardValue].integerValue;
@@ -83,7 +84,7 @@
     BOOL shouldReEvaluteCardsWithAces = self.currentAceCount > 0 && self.cardsEvaluation > BlackjackGame.cardsAmountToWin && self.cardsEvaluationWithoutAces < BlackjackGame.cardsAmountToWin;
     
     if (shouldReEvaluteCardsWithAces) {
-        self.cardsEvaluation = self.cardsEvaluationWithoutAces + [self addAceLogicToCardsEvaluation:self.cardsEvaluationWithoutAces];
+        self.cardsEvaluation = self.cardsEvaluationWithoutAces + [self getBestAceValueForCardsEvaluation:self.cardsEvaluationWithoutAces];
     }
     
     if (self.cardsEvaluation == BlackjackGame.cardsAmountToWin) {
@@ -95,7 +96,9 @@
     }
 }
 
--(NSInteger)addAceLogicToCardsEvaluation:(NSInteger)cardsEvaluation {
+-(NSInteger)getBestAceValueForCardsEvaluation:(NSInteger)cardsEvaluation {
+    NSAssert(self.currentAceCount == 0, @"This method is being called when at least 1 Ace (A) found.");
+    
     const int aceFirstPossibility = 11;
     const int aceSecondPossibility = 1;
     
@@ -106,7 +109,6 @@
             return aceSecondPossibility;
         }
     }
-    NSAssert(self.currentAceCount == 0, @"This method is being called when at least 1 Ace (A) found.");
     return 0;
 }
 
