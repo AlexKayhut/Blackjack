@@ -30,17 +30,15 @@
 
 @end
 
+extern const NSInteger CARDS_AMOUNT_TO_WIN;
+extern const NSInteger DEALER_MINUMUM_CARD_EVALUATION;
+extern const NSDictionary<NSString*, NSNumber*> * _Nonnull CARDS_VALUE;
+
 @interface BlackjackGame : NSObject
 
 @property (nonatomic, strong, readonly, nonnull) Player *currentPlayer;
 @property (nonatomic, strong, readonly, nonnull) Player *dealer;
 @property (nonatomic, weak, nullable) id<BlackjackGameDelegate> delegate;
-
-// MARK: class properties
-
-@property (nonatomic, readonly, class) NSInteger cardsAmountToWin;
-@property (nonatomic, readonly, class) NSInteger dealerMinimumCardEvaluation;
-@property (nonatomic, readonly, class, nonnull) NSDictionary<NSString*, NSNumber*> *cardValues;
 
 - (instancetype _Nonnull )initWithNumberOfPlayers:(NSInteger)numberOfPlayers
                                          delegate:(id<BlackjackGameDelegate>_Nullable)delegate;

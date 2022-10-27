@@ -77,19 +77,19 @@
         self.currentAceCount += 1;
         self.cardsEvaluation += [self getBestAceValueForCardsEvaluation:self.cardsEvaluation];
     } else {
-        self.cardsEvaluation += BlackjackGame.cardValues[card.cardValue].integerValue;
-        self.cardsEvaluationWithoutAces += BlackjackGame.cardValues[card.cardValue].integerValue;
+        self.cardsEvaluation += CARDS_VALUE[card.cardValue].integerValue;
+        self.cardsEvaluationWithoutAces += CARDS_VALUE[card.cardValue].integerValue;
     }
     
-    BOOL shouldReEvaluteCardsWithAces = self.currentAceCount > 0 && self.cardsEvaluation > BlackjackGame.cardsAmountToWin && self.cardsEvaluationWithoutAces < BlackjackGame.cardsAmountToWin;
+    BOOL shouldReEvaluteCardsWithAces = self.currentAceCount > 0 && self.cardsEvaluation > CARDS_AMOUNT_TO_WIN && self.cardsEvaluationWithoutAces < CARDS_AMOUNT_TO_WIN;
     
     if (shouldReEvaluteCardsWithAces) {
         self.cardsEvaluation = self.cardsEvaluationWithoutAces + [self getBestAceValueForCardsEvaluation:self.cardsEvaluationWithoutAces];
     }
     
-    if (self.cardsEvaluation == BlackjackGame.cardsAmountToWin) {
+    if (self.cardsEvaluation == CARDS_AMOUNT_TO_WIN) {
         self.state = GOT_BLACKJACK;
-    } else if (self.cardsEvaluation > BlackjackGame.cardsAmountToWin) {
+    } else if (self.cardsEvaluation > CARDS_AMOUNT_TO_WIN) {
         self.state = BUST;
     } else {
         self.state = PLAYING;
@@ -97,15 +97,15 @@
 }
 
 -(NSInteger)getBestAceValueForCardsEvaluation:(NSInteger)cardsEvaluation {
-    NSAssert(self.currentAceCount == 0, @"This method is being called when at least 1 Ace (A) found.");
+    NSAssert(self.currentAceCount != 0, @"This method is being called when at least 1 Ace (A) found.");
     
     const int aceFirstPossibility = 11;
     const int aceSecondPossibility = 1;
     
     for (int i=0; i<self.currentAceCount;i++) {
-        if ((cardsEvaluation + aceFirstPossibility) <= BlackjackGame.cardsAmountToWin) {
+        if ((cardsEvaluation + aceFirstPossibility) <= CARDS_AMOUNT_TO_WIN) {
             return aceFirstPossibility;
-        } else if ((cardsEvaluation + aceSecondPossibility) <= BlackjackGame.cardsAmountToWin) {
+        } else if ((cardsEvaluation + aceSecondPossibility) <= CARDS_AMOUNT_TO_WIN) {
             return aceSecondPossibility;
         }
     }

@@ -20,31 +20,22 @@
 
 @end
 
+const NSInteger CARDS_AMOUNT_TO_WIN = 21;
+const NSInteger DEALER_MINUMUM_CARD_EVALUATION = 16;
+
+const NSDictionary<NSString*, NSNumber*> *CARDS_VALUE = @{@"2": @2, @"3": @3, @"4": @4,
+                                                          @"5": @5, @"6": @6, @"7": @7,
+                                                          @"8": @8, @"9": @9, @"10": @10,
+                                                          @"J": @10, @"Q": @10, @"K": @10};
+
 // MARK: - Implementation
 
 @implementation BlackjackGame
 
-const NSInteger minimumBuyin = 50;
-const NSInteger minimumRoundBet = 5;
-
-- (NSInteger)getBetAmountForPlayer:(Player *)player {
-    return [self.bets valueForKey:player.identifier].integerValue;
-}
-
 // MARK: - Static Methods
 
-+ (NSDictionary<NSString*, NSNumber*> *)cardValues {
-    return @{@"2": @2, @"3": @3, @"4": @4, @"5": @5, @"6": @6, @"7": @7,
-             @"8": @8, @"9": @9, @"10": @10, @"J": @10, @"Q": @10, @"K": @10};
-}
-
-+ (NSInteger)cardsAmountToWin {
-    return 21;
-}
-
-+ (NSInteger)dealerMinimumCardEvaluation {
-    return 16;
-}
+const NSInteger MINIMUM_BUYIN = 50;
+const NSInteger MINIMUM_ROUND_BET = 5;
 
 // MARK: - Init
 
@@ -60,7 +51,7 @@ const NSInteger minimumRoundBet = 5;
         
         for (int i=0; i<numberOfPlayers; i++) {
             NSString *name = [NSString stringWithFormat:@"Player #%d", i+1];
-            Player *player = [[Player alloc] initWithName:name chips: minimumBuyin delegate:self];
+            Player *player = [[Player alloc] initWithName:name chips: MINIMUM_BUYIN delegate:self];
             [newPlayers addObject: player];
         }
         _players = newPlayers;
@@ -75,6 +66,10 @@ const NSInteger minimumRoundBet = 5;
 
 // MARK: - Player Filters
 
+- (NSInteger)getBetAmountForPlayer:(Player *)player {
+    return [self.bets valueForKey:player.identifier].integerValue;
+}
+
 - (NSArray<Player *> *)currentActivePlayers {
     NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(Player *player, NSDictionary *bindings) {
         return player.state == PLAYING;
@@ -84,7 +79,7 @@ const NSInteger minimumRoundBet = 5;
 
 - (NSArray<Player *> *)playersAvailableForNextFound {
     NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(Player *player, NSDictionary *bindings) {
-        return player.chips >= minimumRoundBet;
+        return player.chips >= MINIMUM_ROUND_BET;
     }];
     return [self.players filteredArrayUsingPredicate:predicate];
 }
@@ -172,14 +167,14 @@ const NSInteger minimumRoundBet = 5;
 -(void)handleDealerHandAfterPlayersDone {
     [self.dealer.cards.lastObject setIsFaceUp:YES];
     
-    while (self.dealer.cardsEvaluation <= BlackjackGame.dealerMinimumCardEvaluation) {
+    while (self.dealer.cardsEvaluation <= DEALER_MINUMUM_CARD_EVALUATION) {
         [self.dealer acceptNewCard:[self.deck drawRandomCardWithFaceUp:YES]];
     }
 }
 
 -(void)handlePlayersBetsInRound {
     for (Player *player in self.players) {
-        BOOL dealerBeatPlayer = (self.dealer.cardsEvaluation > player.cardsEvaluation && self.dealer.cardsEvaluation <= BlackjackGame.cardsAmountToWin) || (self.dealer.state == BUST && player.state == BUST);
+        BOOL dealerBeatPlayer = (self.dealer.cardsEvaluation > player.cardsEvaluation && self.dealer.cardsEvaluation <= CARDS_AMOUNT_TO_WIN) || (self.dealer.state == BUST && player.state == BUST);
         BOOL playerAndDealerEqualEvaluation = player.cardsEvaluation == self.dealer.cardsEvaluation;
         NSLog( @"%@", [NSString stringWithFormat:@"%@, %ld, %ld", player.name, (long)player.cardsEvaluation, (long)self.dealer.cardsEvaluation]);
         

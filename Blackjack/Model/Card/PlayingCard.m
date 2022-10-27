@@ -52,19 +52,21 @@
 
 // MARK: Getter/Setter
 
-- (void)setSuit:(NSString *)suit {
+- (void)setSuit:(NSString *)suit error:(NSError **)error {
   if ([PlayingCard.validSuits containsObject:suit]) {
     _suit = suit;
+  } else {
+      NSString *message = [NSString stringWithFormat:@"Cant find suit %@", suit];
+      *error = [[NSError alloc] initWithDomain:message code:-1 userInfo:NULL];
   }
 }
 
-- (NSString *)suit {
-  return _suit ? _suit : @"?";
-}
-
--(void)setRank:(NSInteger)rank {
+-(void)setRank:(NSInteger)rank error:(NSError **)error {
   if (rank <= PlayingCard.maxRank) {
     _rank = rank;
+  } else {
+      NSString *message = [NSString stringWithFormat:@"Invalid rank %ld", (long)rank];
+      *error = [[NSError alloc] initWithDomain:message code:-1 userInfo:NULL];
   }
 }
 
