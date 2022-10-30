@@ -72,20 +72,30 @@
   [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow: index inSection:0] atScrollPosition:UITableViewScrollPositionNone animated:true];
 }
 
-- (void)betsOver {
-  self.betSegmentedControl.hidden = YES;
-  self.decisionSegmentedControl.hidden = NO;
-}
+- (void)handleChangesforNewState:(GameState)state {
+  switch(state) {
+    case IN_GAME:
+    case ROUND_OVER: {
+      self.actionButton.hidden = NO;
+      self.decisionSegmentedControl.hidden = YES;
+      [self.actionButton setTitle:@"Next Round" forState:UIControlStateNormal];
+      [self.tableView reloadData];
+      break;
+    }
+      
+    case BETS_OVER: {
+      self.betSegmentedControl.hidden = YES;
+      self.decisionSegmentedControl.hidden = NO;
+      break;
+    }
 
-- (void)roundOver {
-  self.actionButton.hidden = NO;
-  self.decisionSegmentedControl.hidden = YES;
-  [self.actionButton setTitle:@"Next Round" forState:UIControlStateNormal];
-}
-
-- (void)gameOver {
-  self.actionButton.hidden = YES;
-  self.decisionSegmentedControl.hidden = YES;
+    case GAME_OVER: {
+      self.actionButton.hidden = YES;
+      self.decisionSegmentedControl.hidden = YES;
+      [self.tableView reloadData];
+      break;
+    }
+  }
 }
 
 // MARK: - IBActions
@@ -124,26 +134,26 @@
   PlayerCellTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
   Player *player = self.game.players[indexPath.row];
   
-  if (indexPath.row == [self.game.players indexOfObject:self.game.currentPlayer]) {
+  if (player == self.game.currentPlayer) {
     cell.backgroundColor = UIColor.whiteColor;
-    self.playingOptionsMainLabel.text = [NSString stringWithFormat:@"%@ turn:", player.name];
   }
   
-  if (player.state == GOT_BLACKJACK) {
-    cell.backgroundColor = UIColor.greenColor;
-  } else if (player.state == BUST) {
-    cell.backgroundColor = UIColor.redColor;
+  if (player.didPlayRound) {
+    if (player.state == GOT_BLACKJACK) {
+      cell.backgroundColor = UIColor.greenColor;
+    } else if (player.state == BUST) {
+      cell.backgroundColor = UIColor.redColor;
+    }
   }
   
+  if (player == self.game.currentPlayer || player.didPlayRound) {
+    cell.cardEvaluationLabel.text = [NSString stringWithFormat:@"%ld", (long)player.cardsEvaluation];
+  }
+  
+  self.playingOptionsMainLabel.text = [NSString stringWithFormat:@"%@ turn:", player.name];
   cell.name.text = player.name;
   cell.chips.text = [NSString stringWithFormat:@"%lu 💰", (unsigned long)player.chips];
   cell.currentBet.text = [NSString stringWithFormat:@"bet: %lu", (unsigned long)[self.game getBetAmountForPlayer:player]];
-  
-  //    if (self.game.currentPlayer == player || player.state != PLAYING || self.game.gameState == GAMEOVER) {
-  cell.cardEvaluationLabel.text = [NSString stringWithFormat:@"%ld", (long)player.cardsEvaluation];
-  //    } else {
-  //        cell.cardEvaluationLabel.text = @"-";
-  //    }
   
   [self addCardViewsTo:cell.cardsStackView fromPlayer:player];
   return cell;
