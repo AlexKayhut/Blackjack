@@ -8,16 +8,21 @@
 #import <UIKit/UIKit.h>
 #import "Player.h"
 
+typedef NS_ENUM(NSInteger, GameState) {
+    IN_GAME,
+    BETS_OVER,
+    ROUND_OVER,
+    GAME_OVER
+};
+
 // MARK: - BlackjackGame Delegate
 
 @protocol BlackjackGameDelegate
 
 -(void)updateUIForDealer;
 -(void)updateUIForPlayerAtIndex:(NSArray<NSNumber *>*_Nonnull)array;
--(void)focusOnPlayerAtIndex: (NSInteger)index;
--(void)betsOver;
--(void)gameOver;
--(void)roundOver;
+-(void)focusOnPlayerAtIndex:(NSInteger)index;
+-(void)handleChangesforNewState:(GameState)state;
 
 @end
 
@@ -26,6 +31,7 @@
 @protocol Game
 
 @property (nonatomic, copy, readonly) NSArray<Player *> *_Nonnull players;
+@property (nonatomic, assign, readonly) GameState state;
 -(void)prepareForNewRound;
 
 @end

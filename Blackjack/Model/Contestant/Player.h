@@ -36,6 +36,7 @@ typedef NS_ENUM (NSInteger, Decision) {
 @property (nonatomic, readonly) NSInteger chips;
 @property (nonatomic, readonly) NSInteger cardsEvaluation;
 @property (nonatomic, readonly, assign) ContestantState state;
+@property (nonatomic, readonly) BOOL didPlayRound;
 
 - (instancetype _Nonnull)initWithName:(NSString *_Nonnull)name
                        cards:(NSArray *_Nonnull)cards
@@ -50,5 +51,6 @@ typedef NS_ENUM (NSInteger, Decision) {
 - (void)wonChipsAmount: (NSInteger)winAmount;
 - (void)collectBet:(NSInteger)betAmount;
 - (void)prepareForNewRound;
+- (void)showHand;
 
 @end
