@@ -5,40 +5,23 @@
 //  Created by Alex on 28/09/2022.
 //
 
-#import <UIKit/UIKit.h>
 #import "Player.h"
+#import "GameProtocol.h"
 
-typedef NS_ENUM(NSInteger, GameState) {
-    IN_GAME,
-    BETS_OVER,
-    ROUND_OVER,
-    GAME_OVER
-};
+extern const NSInteger CARDS_AMOUNT_TO_WIN;
+extern const NSInteger DEALER_MINUMUM_CARD_EVALUATION;
+extern const NSDictionary<NSString*, NSNumber*> * _Nonnull CARDS_VALUE;
 
 // MARK: - BlackjackGame Delegate
 
 @protocol BlackjackGameDelegate
 
 -(void)updateUIForDealer;
--(void)updateUIForPlayerAtIndex:(NSArray<NSNumber *>*_Nonnull)array;
+-(void)updateUIForPlayerAtIndex:(NSInteger)index;
 -(void)focusOnPlayerAtIndex:(NSInteger)index;
 -(void)handleChangesforNewState:(GameState)state;
 
 @end
-
-// MARK: - Game Protocol
-
-@protocol Game
-
-@property (nonatomic, copy, readonly) NSArray<Player *> *_Nonnull players;
-@property (nonatomic, assign, readonly) GameState state;
--(void)prepareForNewRound;
-
-@end
-
-extern const NSInteger CARDS_AMOUNT_TO_WIN;
-extern const NSInteger DEALER_MINUMUM_CARD_EVALUATION;
-extern const NSDictionary<NSString*, NSNumber*> * _Nonnull CARDS_VALUE;
 
 @interface BlackjackGame : NSObject
 

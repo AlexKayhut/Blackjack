@@ -52,15 +52,15 @@ const NSInteger MINIMUM_ROUND_BET = 5;
     
     for (int i=0; i<numberOfPlayers; i++) {
       NSString *name = [NSString stringWithFormat:@"Player #%d", i+1];
-      Player *player = [[Player alloc] initWithName:name chips: MINIMUM_BUYIN delegate:self];
+      Player *player = [[Player alloc] initWithName:name chips:MINIMUM_BUYIN delegate:self];
       [newPlayers addObject: player];
     }
-    _players = newPlayers;
+    _players = [newPlayers copy];
     _currentPlayer = newPlayers.firstObject;
     _deck = deck;
     _delegate = delegate;
     _bets = [NSMutableDictionary new];
-    _dealer = [[Player alloc] initWithName:@"Dealer" chips: 0 delegate:self];
+    _dealer = [[Player alloc] initWithName:@"Dealer" chips:0 delegate:self];
     _state = IN_GAME;
   }
   return self;
@@ -69,6 +69,16 @@ const NSInteger MINIMUM_ROUND_BET = 5;
 - (void)setState:(GameState)state {
   _state = state;
   [self.delegate handleChangesforNewState: state];
+}
+
+- (void)setCurrentPlayer:(Player *)currentPlayer {
+  _currentPlayer = currentPlayer;
+  NSInteger index = [self.players indexOfObject:currentPlayer];
+  [self.delegate focusOnPlayerAtIndex:index];
+  [self.delegate updateUIForPlayerAtIndex: index];
+  if (index > 0) {
+    [self.delegate updateUIForPlayerAtIndex: index - 1];
+  }
 }
 
 // MARK: - Player Filters
@@ -123,7 +133,7 @@ const NSInteger MINIMUM_ROUND_BET = 5;
 
 - (void)collectBet:(NSInteger)amount {
   if (self.currentPlayer.chips >= amount) {
-    [self.bets setObject:[NSNumber numberWithInteger:amount] forKey:self.currentPlayer.identifier];
+    self.bets[self.currentPlayer.identifier] = @(amount);
     [self.currentPlayer collectBet:amount];
     [self nextPlayer];
   } else {
@@ -150,30 +160,16 @@ const NSInteger MINIMUM_ROUND_BET = 5;
 }
 
 -(void)nextPlayer {
-  NSMutableArray<NSNumber *> *playersIndexToUpdated = [NSMutableArray new];
+  NSArray<Player *> *currentActivePlayers = [self currentActivePlayers];
   
-  if (self.currentPlayer != self.players.lastObject) {
-    NSNumber *currentPlayerIndex = [NSNumber numberWithInteger:[self.players indexOfObject: self.currentPlayer]];
-    [playersIndexToUpdated addObject:currentPlayerIndex];
-    
-    Player *nextPlayer = self.players[currentPlayerIndex.intValue + 1];
+  if (self.currentPlayer == currentActivePlayers.lastObject) {
+    self.currentPlayer = currentActivePlayers.firstObject;
+  } else {
+    NSInteger currentPlayerIndex = [self.players indexOfObject: self.currentPlayer];
+    Player *nextPlayer = [self.players objectAtIndex:currentPlayerIndex + 1];
     [nextPlayer showHand];
     self.currentPlayer = nextPlayer;
-    
-    NSNumber *nextPlayerIndex = [NSNumber numberWithInteger:[self.players indexOfObject: nextPlayer]];
-    [playersIndexToUpdated addObject:nextPlayerIndex];
-    
-    [self.delegate focusOnPlayerAtIndex:playersIndexToUpdated.lastObject.integerValue];
-  } else {
-    NSArray<Player *> *currentActivePlayers = [self currentActivePlayers];
-    
-    self.currentPlayer = currentActivePlayers.firstObject;
-    [playersIndexToUpdated addObject:[NSNumber numberWithInteger:0]];
-    [playersIndexToUpdated addObject:[NSNumber numberWithInteger: currentActivePlayers.count - 1]];
-    [self.delegate focusOnPlayerAtIndex:0];
   }
-  
-  [self.delegate updateUIForPlayerAtIndex: playersIndexToUpdated];
 }
 
 -(void)handleDealerHandAfterPlayersDone {
@@ -186,9 +182,10 @@ const NSInteger MINIMUM_ROUND_BET = 5;
 
 -(void)handlePlayersBetsInRound {
   for (Player *player in self.players) {
-    BOOL dealerBeatPlayer = (self.dealer.cardsEvaluation > player.cardsEvaluation && self.dealer.cardsEvaluation <= CARDS_AMOUNT_TO_WIN) || (self.dealer.state == BUST && player.state == BUST);
-    BOOL playerAndDealerEqualEvaluation = player.cardsEvaluation == self.dealer.cardsEvaluation;
-    NSLog( @"%@", [NSString stringWithFormat:@"%@, %ld, %ld", player.name, (long)player.cardsEvaluation, (long)self.dealer.cardsEvaluation]);
+    BOOL dealerAndPlayerBust = self.dealer.state == BUST && player.state == BUST;
+    BOOL dealerAndPlayerHasEqualEvaluation = player.cardsEvaluation == self.dealer.cardsEvaluation;
+    BOOL dealerCardsHigherThenPlayer = self.dealer.cardsEvaluation > player.cardsEvaluation && self.dealer.cardsEvaluation <= CARDS_AMOUNT_TO_WIN;
+    BOOL dealerBeatPlayer = dealerCardsHigherThenPlayer || dealerAndPlayerBust;
     
     NSInteger originalBetAmount = self.bets[player.identifier].integerValue;
     [self.bets removeObjectForKey:player.identifier];
@@ -196,14 +193,13 @@ const NSInteger MINIMUM_ROUND_BET = 5;
     switch(player.state) {
       case PLAYING:
       case GOT_BLACKJACK: {
-        if (playerAndDealerEqualEvaluation || dealerBeatPlayer) {
+        if (dealerAndPlayerHasEqualEvaluation || dealerBeatPlayer) {
           [player setState:BUST];
           [self.dealer wonChipsAmount:originalBetAmount];
           continue;
         } else {
           float rate = player.state == PLAYING ? 2.0 : 1.5;
           [player wonChipsAmount:originalBetAmount * rate];
-          [self.delegate updateUIForPlayerAtIndex:[NSArray arrayWithObjects:[NSNumber numberWithInteger:[self.players indexOfObject:player]], nil]];
         }
         break;
       }
@@ -255,7 +251,7 @@ const NSInteger MINIMUM_ROUND_BET = 5;
   if (player == self.dealer) {
     [self.delegate updateUIForDealer];
   } else if (player == self.currentPlayer) {
-    [self.delegate updateUIForPlayerAtIndex:[NSArray arrayWithObjects:[NSNumber numberWithInteger:[self.players indexOfObject:player]], nil]];
+    [self.delegate updateUIForPlayerAtIndex: [self.players indexOfObject:player]];
   }
 }
 

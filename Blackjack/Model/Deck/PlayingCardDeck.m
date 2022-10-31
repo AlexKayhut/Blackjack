@@ -22,14 +22,13 @@
         [card setRank:rank error:&error];
         if (error) {
           // show alert?
-          NSLog(error.domain);
-          return NULL;
+          NSLog(error.domain.description);
+          return nil;
         }
-        
-        [super.cards addObject:card];
+        [super addCard:card];
       }
     }
-    [super.cards shuffle];
+    [super shuffle];
   }
   return self;
 }

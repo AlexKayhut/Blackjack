@@ -39,12 +39,14 @@ typedef NS_ENUM (NSInteger, Decision) {
 @property (nonatomic, readonly) BOOL didPlayRound;
 
 - (instancetype _Nonnull)initWithName:(NSString *_Nonnull)name
-                       cards:(NSArray *_Nonnull)cards
-                       chips:(NSInteger)chips
-                       state: (ContestantState)state
-                    delegate:(id<PlayerDelegate>_Nullable)delegate;
+                                cards:(NSArray *_Nonnull)cards
+                                chips:(NSInteger)chips
+                                state: (ContestantState)state
+                             delegate:(id<PlayerDelegate>_Nullable)delegate;
 
-- (instancetype _Nonnull)initWithName:(NSString *_Nonnull)name chips:(NSInteger)chips delegate:(id<PlayerDelegate>_Nullable)delegate;
+- (instancetype _Nonnull)initWithName:(NSString *_Nonnull)name
+                                chips:(NSInteger)chips
+                             delegate:(id<PlayerDelegate>_Nullable)delegate;
 
 - (void)setState:(ContestantState)state;
 - (void)acceptNewCard: (Card *_Nonnull)card;

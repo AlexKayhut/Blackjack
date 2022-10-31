@@ -19,8 +19,6 @@
 - (NSString *)cardValue;
 - (BOOL)isAce;
 
-- (instancetype)initWithSuit:(NSString *)suit rank:(NSInteger)rank;
-
 - (void)setSuit:(NSString *)suit error:(NSError **)error;
 - (void)setRank:(NSInteger)rank error:(NSError **)error;
 

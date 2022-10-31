@@ -10,23 +10,25 @@
 
 @interface Deck ()
 
-@property (nonatomic, copy) NSMutableArray *cards;
+@property (nonatomic, copy) NSArray *cards;
 
 @end
 
 @implementation Deck
 
-- (NSMutableArray *)cards {
+- (NSArray *)cards {
   if (!_cards) {
-    _cards = [NSMutableArray new];
+    _cards = [NSArray new];
   }
   return _cards;
 }
 
 - (Card *)drawRandomCardWithFaceUp:(BOOL) isFaceUp {
-  Card *randomCard = self.cards.firstObject;
+  NSMutableArray *mutableCards = [[NSMutableArray alloc] initWithArray:self.cards];
+  Card *randomCard = mutableCards.firstObject;
   randomCard.isFaceUp = isFaceUp;
-  [self.cards removeObjectAtIndex:0];
+  [mutableCards removeObjectAtIndex:0];
+  self.cards = mutableCards;
   return randomCard;
 }
 
@@ -35,15 +37,19 @@
 }
 
 - (void)addCard:(Card *)card atTop:(BOOL)atTop {
+  NSMutableArray *mutableCards = [[NSMutableArray alloc] initWithArray:self.cards];
   if (atTop) {
-    [self.cards insertObject:card atIndex:0];
+    [mutableCards insertObject:card atIndex:0];
   } else {
-    [self.cards addObject:card];
+    [mutableCards addObject:card];
   }
+  self.cards = mutableCards;
 }
 
 - (void)shuffle {
-  [self.cards shuffle];
+  NSMutableArray *mutableCards = [[NSMutableArray alloc] initWithArray:self.cards];
+  [mutableCards shuffle];
+  self.cards = mutableCards;
 }
 
 @end

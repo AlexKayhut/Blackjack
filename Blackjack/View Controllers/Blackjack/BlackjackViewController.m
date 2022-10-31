@@ -29,10 +29,10 @@
   self.tableView.delegate = self;
   self.tableView.dataSource = self;
   self.game = [[BlackjackGame alloc] initWithNumberOfPlayers:self.numberOfPlayers delegate:self];
-  [self resetUI];
+  [self prepareUIForANewRound];
 }
 
-- (void)resetUI {
+- (void)prepareUIForANewRound {
   self.betSegmentedControl.hidden = NO;
   self.decisionSegmentedControl.hidden = YES;
   self.actionButton.hidden = YES;
@@ -60,16 +60,13 @@
   self.dealerChipsLabel.text = [NSString stringWithFormat:@"%ld 💰", (long)self.game.dealer.chips];
 }
 
-- (void)updateUIForPlayerAtIndex:(NSArray<NSNumber *>*)array {
-  NSMutableArray<NSIndexPath *> *indexPaths = [[NSMutableArray alloc]initWithCapacity: array.count];
-  for (NSNumber *number in array) {
-    [indexPaths addObject:[NSIndexPath indexPathForRow: number.integerValue inSection:0]];
-  }
-  [self.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+- (void)updateUIForPlayerAtIndex:(NSInteger)index {
+  [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow: index inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
 - (void)focusOnPlayerAtIndex: (NSInteger) index {
-  [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow: index inSection:0] atScrollPosition:UITableViewScrollPositionNone animated:true];
+  [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow: index inSection:0]
+                        atScrollPosition:UITableViewScrollPositionNone animated:true];
 }
 
 - (void)handleChangesforNewState:(GameState)state {
@@ -123,7 +120,7 @@
 
 - (IBAction)actionButtonDidTap:(UIButton *)sender {
   [self.game prepareForNewRound];
-  [self resetUI];
+  [self prepareUIForANewRound];
 }
 
 // MARK: Table View

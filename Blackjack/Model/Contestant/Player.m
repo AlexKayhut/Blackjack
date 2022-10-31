@@ -16,7 +16,7 @@
 @property (nonatomic) NSInteger cardsEvaluationWithoutAces;
 @property (nonatomic) NSInteger currentAceCount;
 @property (nonatomic) NSInteger chips;
-@property (nonatomic, weak, nullable) id<PlayerDelegate> delegate;
+@property (nonatomic, weak, readonly, nullable) id<PlayerDelegate> delegate;
 
 @end
 
@@ -24,7 +24,11 @@
 
 // MARK: Init
 
-- (instancetype)initWithName:(NSString *)name cards:(NSArray *)cards chips:(NSInteger)chips state:(ContestantState)state delegate:(id<PlayerDelegate> _Nullable)delegate {
+- (instancetype)initWithName:(NSString *)name
+                       cards:(NSArray *)cards
+                       chips:(NSInteger)chips
+                       state:(ContestantState)state
+                    delegate:(id<PlayerDelegate> _Nullable)delegate {
   self = [super initWithName:name];
   if (self) {
     _cards = cards;
@@ -36,7 +40,9 @@
   return self;
 }
 
-- (instancetype)initWithName:(NSString *)name chips:(NSInteger)chips delegate:(id<PlayerDelegate> _Nullable)delegate {
+- (instancetype)initWithName:(NSString *)name
+                       chips:(NSInteger)chips
+                    delegate:(id<PlayerDelegate> _Nullable)delegate {
   return [self initWithName:name cards:[NSMutableArray new] chips:chips state:PLAYING delegate:delegate];
 }
 
@@ -60,10 +66,10 @@
 }
 
 - (void)acceptNewCard:(PlayingCard *)card {
-  NSMutableArray<Card *> *mutableCards = [NSMutableArray arrayWithCapacity:self.cards.count];
+  NSMutableArray<Card *> *mutableCards = [self.cards copy];
   [mutableCards addObjectsFromArray:self.cards];
   [mutableCards addObject:card];
-  self.cards = mutableCards;
+  self.cards = [mutableCards copy];
   [self updateCardEvaluationWithCard:card];
 }
 

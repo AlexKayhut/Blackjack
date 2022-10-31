@@ -13,15 +13,6 @@
 
 @synthesize suit = _suit;
 
-- (instancetype)initWithSuit:(NSString *)suit rank:(NSInteger)rank {
-  self = [super init];
-  if (self) {
-    _rank = rank;
-    _suit = suit;
-  }
-  return self;
-}
-
 // MARK: Static
 
 + (NSArray<NSString *> *)validSuits {

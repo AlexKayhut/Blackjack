@@ -11,7 +11,7 @@
 
 @interface Deck : NSObject
 
-@property (nonatomic, copy, readonly) NSMutableArray *cards;
+@property (nonatomic, copy, readonly) NSArray *cards;
 
 - (void)addCard:(Card *)card;
 - (void)shuffle;
