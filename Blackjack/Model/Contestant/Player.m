@@ -66,10 +66,9 @@
 }
 
 - (void)acceptNewCard:(PlayingCard *)card {
-  NSMutableArray<Card *> *mutableCards = [self.cards copy];
-  [mutableCards addObjectsFromArray:self.cards];
+  NSMutableArray<Card *> *mutableCards = [self.cards mutableCopy];
   [mutableCards addObject:card];
-  self.cards = [mutableCards copy];
+  self.cards = mutableCards;
   [self updateCardEvaluationWithCard:card];
 }
 

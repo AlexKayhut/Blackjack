@@ -76,9 +76,6 @@ const NSInteger MINIMUM_ROUND_BET = 5;
   NSInteger index = [self.players indexOfObject:currentPlayer];
   [self.delegate focusOnPlayerAtIndex:index];
   [self.delegate updateUIForPlayerAtIndex: index];
-  if (index > 0) {
-    [self.delegate updateUIForPlayerAtIndex: index - 1];
-  }
 }
 
 // MARK: - Player Filters
@@ -164,11 +161,13 @@ const NSInteger MINIMUM_ROUND_BET = 5;
   
   if (self.currentPlayer == currentActivePlayers.lastObject) {
     self.currentPlayer = currentActivePlayers.firstObject;
+    [self.delegate updateUIForPlayerAtIndex: currentActivePlayers.count - 1];
   } else {
     NSInteger currentPlayerIndex = [self.players indexOfObject: self.currentPlayer];
     Player *nextPlayer = [self.players objectAtIndex:currentPlayerIndex + 1];
     [nextPlayer showHand];
     self.currentPlayer = nextPlayer;
+    [self.delegate updateUIForPlayerAtIndex: currentPlayerIndex];
   }
 }
 
