@@ -138,20 +138,28 @@ const NSInteger MINIMUM_ROUND_BET = 5;
   }
   
   if (self.bets[self.players.lastObject.identifier]) {
-    [self dealCardsFaceUp:YES];
-    [self dealCardsFaceUp:NO];
-    
-    if (self.currentPlayer == self.players.firstObject && self.currentPlayer.state != PLAYING) {
-      [self nextPlayer];
-    }
+    [self dealCards];
+    [self handleFirstPlayerHandAfterCardsDelt];
     self.state = BETS_OVER;
+  }
+}
+
+-(void)dealCards {
+  [self dealCardsFaceUp:YES];
+  [self dealCardsFaceUp:NO];
+}
+
+-(void)handleFirstPlayerHandAfterCardsDelt {
+  [self.players.firstObject.cards.lastObject setIsFaceUp:YES];
+  
+  if (self.currentPlayer == self.players.firstObject && self.currentPlayer.state != PLAYING) {
+    [self nextPlayer];
   }
 }
 
 -(void)dealCardsFaceUp:(BOOL)isFaceUp {
   for (Player *player in self.players) {
-    BOOL _isFaceUp = player == self.players.firstObject ? YES : isFaceUp;
-    [player acceptNewCard:[self.deck drawRandomCardWithFaceUp:_isFaceUp]];
+    [player acceptNewCard:[self.deck drawRandomCardWithFaceUp:isFaceUp]];
   }
   [self.dealer acceptNewCard:[self.deck drawRandomCardWithFaceUp:isFaceUp]];
 }
