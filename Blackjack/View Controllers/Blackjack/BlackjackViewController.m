@@ -61,12 +61,14 @@
 }
 
 - (void)updateUIForPlayerAtIndex:(NSInteger)index {
+  [self.tableView beginUpdates];
   [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow: index inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
+  [self.tableView endUpdates];
 }
 
 - (void)focusOnPlayerAtIndex: (NSInteger) index {
   [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow: index inSection:0]
-                        atScrollPosition:UITableViewScrollPositionNone animated:true];
+                        atScrollPosition:UITableViewScrollPositionNone animated:false];
 }
 
 - (void)handleChangesforNewState:(GameState)state {
@@ -76,7 +78,6 @@
       self.actionButton.hidden = NO;
       self.decisionSegmentedControl.hidden = YES;
       [self.actionButton setTitle:@"Next Round" forState:UIControlStateNormal];
-      [self.tableView reloadData];
       break;
     }
       
@@ -89,10 +90,11 @@
     case GAME_OVER: {
       self.actionButton.hidden = YES;
       self.decisionSegmentedControl.hidden = YES;
-      [self.tableView reloadData];
+      self.playingOptionsMainLabel.text = @"Game Over";
       break;
     }
   }
+  [self.tableView reloadData];
 }
 
 // MARK: - IBActions
@@ -147,7 +149,6 @@
     cell.cardEvaluationLabel.text = [NSString stringWithFormat:@"%ld", (long)player.cardsEvaluation];
   }
   
-  self.playingOptionsMainLabel.text = [NSString stringWithFormat:@"%@ turn:", player.name];
   cell.name.text = player.name;
   cell.chips.text = [NSString stringWithFormat:@"%lu 💰", (unsigned long)player.chips];
   cell.currentBet.text = [NSString stringWithFormat:@"bet: %lu", (unsigned long)[self.game getBetAmountForPlayer:player]];

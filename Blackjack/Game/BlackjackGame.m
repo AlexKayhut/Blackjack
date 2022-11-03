@@ -75,7 +75,7 @@ const NSInteger MINIMUM_ROUND_BET = 5;
   _currentPlayer = currentPlayer;
   NSInteger index = [self.players indexOfObject:currentPlayer];
   [self.delegate focusOnPlayerAtIndex:index];
-  [self.delegate updateUIForPlayerAtIndex: index];
+  [self.delegate updateUIForPlayerAtIndex:index];
 }
 
 // MARK: - Player Filters
@@ -101,8 +101,6 @@ const NSInteger MINIMUM_ROUND_BET = 5;
 // MARK: - Game Logic
 
 - (void)collectDecision:(Decision)decision {
-  BOOL isLastPlayer = self.currentPlayer == [self currentActivePlayers].lastObject;
-  
   switch (decision) {
     case HIT: {
       [self.currentPlayer acceptNewCard:[self.deck drawRandomCardWithFaceUp:YES]];
@@ -121,11 +119,7 @@ const NSInteger MINIMUM_ROUND_BET = 5;
     }
   }
   
-  if (isLastPlayer) {
-    [self finlizeRound];
-  } else {
-    [self nextPlayer];
-  }
+  [self checkRoundOver];
 }
 
 - (void)collectBet:(NSInteger)amount {
@@ -137,19 +131,29 @@ const NSInteger MINIMUM_ROUND_BET = 5;
     NSAssert(self.currentPlayer.chips < amount, @"Player should never get to this point");
   }
   
-  if (self.bets[self.players.lastObject.identifier]) {
-    [self dealCards];
-    [self handleFirstPlayerHandAfterCardsDelt];
-    self.state = BETS_OVER;
-  }
+    [self checkBetsOver];
 }
 
--(void)dealCards {
-  [self dealCardsFaceUp:YES];
-  [self dealCardsFaceUp:NO];
+-(void)checkBetsOver {
+    if (self.bets[self.players.lastObject.identifier]) {
+      [self dealCardsFaceUp:YES];
+      [self dealCardsFaceUp:NO];
+      [self handleFirstPlayerHandAfterCardsDealt];
+      self.state = BETS_OVER;
+    }
 }
 
--(void)handleFirstPlayerHandAfterCardsDelt {
+-(void)checkRoundOver {
+    BOOL isLastPlayer = self.currentPlayer == [self players].lastObject;
+    
+    if (isLastPlayer) {
+      [self finlizeRound];
+    } else {
+      [self nextPlayer];
+    }
+}
+
+-(void)handleFirstPlayerHandAfterCardsDealt {
   [self.players.firstObject.cards.lastObject setIsFaceUp:YES];
   
   if (self.currentPlayer == self.players.firstObject && self.currentPlayer.state != PLAYING) {

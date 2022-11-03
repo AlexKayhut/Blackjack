@@ -21,8 +21,7 @@
         [card setSuit:suit error:&error];
         [card setRank:rank error:&error];
         if (error) {
-          // show alert?
-          NSLog(error.domain.description);
+            NSLog(@"%@", error.domain);
           return nil;
         }
         [super addCard:card];
